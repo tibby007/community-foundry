@@ -17,18 +17,33 @@ import { CapabilityReport } from "@/components/skool/capability-report";
 import { OfferEditor } from "@/components/studio/offer-editor";
 import { CommunityEditor } from "@/components/studio/community-editor";
 
-const steps = ["Foundation", "Offer", "Community", "Classroom", "Engagement", "Brand", "Promotion", "Launch"];
+const steps = ["Foundation", "Offer", "Community", "Classroom", "Engagement", "Brand", "Promotion", "Launch"] as const;
+type StudioStep = typeof steps[number];
+
+const stageGuidance: Record<StudioStep, { intro: string; next: string; coach: string }> = {
+  Foundation: { intro: "Define exactly who this community serves, what they will achieve, and why your approach is different.", next: "Shape how members will join and pay", coach: "Strengthen the promise with a specific result and a visible first milestone." },
+  Offer: { intro: "Choose the membership model, founding price, benefits, and risk reversal.", next: "Design the member experience", coach: "Make the founding offer easy to understand and valuable enough to act on now." },
+  Community: { intro: "Create the conversations, categories, onboarding, and rules that make participation useful.", next: "Build the learning journey", coach: "Give every new member one clear first action and one reason to participate." },
+  Classroom: { intro: "Turn the transformation into a clear member journey with practical milestones.", next: "Plan engagement and retention", coach: "Make every module end with a concrete deliverable members can share." },
+  Engagement: { intro: "Create the habits that keep members participating, progressing, and renewing.", next: "Choose the visual direction", coach: "Build an early win into the first day and a repeatable weekly ritual." },
+  Brand: { intro: "Choose a visual direction and create assets that make the community feel credible and distinct.", next: "Create the promotion plan", coach: "Use the Brand Studio controls to generate and select each visual asset." },
+  Promotion: { intro: "Plan how you will attract the first 25 members and build momentum during launch.", next: "Review launch readiness and export", coach: "Lead with the member's problem, show the path, and give founding members a reason to join now." },
+  Launch: { intro: "Review the plan, address the weakest launch signals, and export everything needed to build the community.", next: "Launch your community", coach: "Your launch package is ready for a final review and export." },
+};
 
 export function StudioShell({ initialProject, storageKey }: { initialProject: CommunityProject; storageKey?: string }) {
   const [project, setProject] = useState(initialProject);
-  const [active, setActive] = useState("Foundation");
+  const [active, setActive] = useState<StudioStep>("Foundation");
   const [applied, setApplied] = useState(false);
   const [scoreValues, setScoreValues] = useState<ScoreValues>(INITIAL_SCORE_VALUES);
   const [previewMode, setPreviewMode] = useState<"desktop"|"mobile">("desktop");
   const [whyOpen, setWhyOpen] = useState(false);
   const [pendingProposal, setPendingProposal] = useState<ProjectProposal|null>(null);
   const [generationStatus, setGenerationStatus] = useState<"idle"|"loading"|"error">("idle");
+  const [generationInstruction, setGenerationInstruction] = useState("");
   const tier = project.offer.tiers[0];
+  const activeIndex = steps.indexOf(active);
+  const nextStep = steps[activeIndex + 1];
 
   const categoryPreview = useMemo(() => project.categories.slice(0, 4), [project.categories]);
 
@@ -40,15 +55,27 @@ export function StudioShell({ initialProject, storageKey }: { initialProject: Co
   }, [project, storageKey]);
 
   function applySuggestion() {
+    const isConsultingDemo = project.templateId === "consulting-client-accelerator";
     setProject((current) => applyProposal(current, {
       id: "demo-foundation-suggestion",
       section: "foundation",
       changes: {
-        "foundation.name": "The Second Act Consulting Lab",
-        "foundation.promise": "Turn your corporate experience into a focused consulting offer and land your first five clients.",
+        ...(isConsultingDemo ? { "foundation.name": "The Second Act Consulting Lab" } : {}),
+        "foundation.promise": isConsultingDemo
+          ? "Turn your corporate experience into a focused consulting offer and land your first five clients."
+          : `${current.foundation.promise.replace(/[.]$/, "")} Complete a visible first milestone within 30 days.`,
       },
     }).project);
     setApplied(true);
+  }
+
+  function goToStep(step: StudioStep) {
+    setActive(step);
+    setApplied(false);
+    setPendingProposal(null);
+    setGenerationStatus("idle");
+    setGenerationInstruction("");
+    setWhyOpen(false);
   }
 
   function acceptManualEdit(next: CommunityProject, path: string) {
@@ -61,7 +88,8 @@ export function StudioShell({ initialProject, storageKey }: { initialProject: Co
     setPendingProposal(null);
     try {
       const section=active.toLowerCase() as ProposalSection;
-      const response=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({project,section,instruction:`Improve the ${section} section while preserving accepted user choices.`})});
+      const instruction=generationInstruction.trim() || `Improve the ${section} section while preserving accepted user choices.`;
+      const response=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({project,section,instruction})});
       if(!response.ok) throw new Error("Generation failed");
       const result=await response.json() as {proposal:{id:string;section:ProposalSection;changes:Array<{path:string;value:unknown}>}};
       setPendingProposal({id:result.proposal.id,section:result.proposal.section,changes:Object.fromEntries(result.proposal.changes.map(change=>[change.path,change.value]))});
@@ -82,7 +110,7 @@ export function StudioShell({ initialProject, storageKey }: { initialProject: Co
           <Link href="/" className="back-link"><ArrowLeft size={15} /> Back to templates</Link>
           <p>BUILD YOUR COMMUNITY</p>
           {steps.map((step, index) => (
-            <button aria-label={`${String(index + 1).padStart(2, "0")} ${step}`} className={active === step ? "rail-step selected" : "rail-step"} key={step} onClick={() => setActive(step)}>
+            <button aria-label={`${String(index + 1).padStart(2, "0")} ${step}`} className={active === step ? "rail-step selected" : "rail-step"} key={step} onClick={() => goToStep(step)}>
               <span>{String(index + 1).padStart(2, "0")}</span><b>{step}</b>{index < 3 && <Check size={12} />}
             </button>
           ))}
@@ -91,7 +119,7 @@ export function StudioShell({ initialProject, storageKey }: { initialProject: Co
 
         <section className="studio-workspace">
           <div className="workspace-heading"><div><p>STEP {steps.indexOf(active) + 1} OF 8</p><h1>{active}</h1></div><button onClick={() => setProject((value) => undoLastChange(value))}><Undo2 size={15} /> Undo</button></div>
-          <p className="workspace-intro">{active === "Classroom" ? "Turn the transformation into a clear member journey." : active === "Engagement" ? "Create the habits that keep members participating and renewing." : "Shape the promise people will immediately understand and want to be part of."}</p>
+          <p className="workspace-intro">{stageGuidance[active].intro}</p>
 
           {active === "Launch" ? <><LaunchScore values={scoreValues}/><MarketValidation templateId={project.templateId === "custom" ? "consulting-client-accelerator" : project.templateId}/><ExportCenter project={project}/><CapabilityReport/></> : active === "Brand" ? <BrandStudio project={project} onChange={acceptManualEdit}/> : active === "Promotion" ? <PromotionEditor project={project} values={scoreValues} onChange={acceptManualEdit} onApply={()=>setScoreValues({...scoreValues,transformationClarity:87,willingnessToPay:90,engagementRetention:90,acquisitionFeasibility:95})}/> : active === "Classroom" ? <ClassroomEditor project={project} onChange={acceptManualEdit} /> : active === "Engagement" ? <EngagementEditor project={project} onChange={acceptManualEdit} /> : active === "Offer" ? <OfferEditor project={project} onChange={acceptManualEdit}/> : active === "Community" ? <CommunityEditor project={project} onChange={acceptManualEdit}/> : <><div className="editor-card section-form">
             <label>Community name<input value={project.foundation.name} onChange={(event) => setProject({ ...project, foundation: { ...project.foundation, name: event.target.value }, lockedPaths: [...new Set([...project.lockedPaths, "foundation.name"])] })} /></label>
@@ -107,6 +135,11 @@ export function StudioShell({ initialProject, storageKey }: { initialProject: Co
 
           <div className="offer-strip"><div><small>RECOMMENDED MODEL</small><strong>{project.offer.model} · ${tier.monthlyPrice}/month</strong></div><div><small>FOUNDING OFFER</small><span>{project.offer.foundingOffer}</span></div></div>
           </>}
+
+          <div className="stage-navigation">
+            <div><small>{nextStep ? "NEXT" : "FINAL STEP"}</small><strong>{nextStep ? stageGuidance[active].next : "Review your launch package and download the exports."}</strong></div>
+            {nextStep && <button onClick={() => goToStep(nextStep)}>Continue to {nextStep} <ChevronRight size={15}/></button>}
+          </div>
         </section>
 
         <section className="studio-preview-panel">
@@ -120,12 +153,13 @@ export function StudioShell({ initialProject, storageKey }: { initialProject: Co
 
           <div className={applied ? "coach-card applied" : "coach-card"}>
             <div className="coach-label"><Sparkles size={14} /> AI COACH <span>High confidence</span></div>
-            <p>{applied ? "Nice. Your promise now names a clear outcome and gives the member something measurable to work toward." : "Your audience is strong, but the promise needs a measurable outcome. Make the first five clients the finish line."}</p>
-            {whyOpen&&<p className="coach-explanation">A measurable finish line makes the offer easier to understand, price, and promote. It also gives members a shared definition of progress.</p>}
+            <p>{pendingProposal ? `A focused ${active.toLowerCase()} recommendation is ready to review.` : applied ? "Applied. Your project now has a clearer, more actionable recommendation." : stageGuidance[active].coach}</p>
+            {whyOpen&&<p className="coach-explanation">Specific outcomes and visible milestones make the community easier to understand, price, promote, and successfully complete.</p>}
             {generationStatus==="loading"&&<p role="status">Generating a focused {active.toLowerCase()} recommendation…</p>}
             {generationStatus==="error"&&<p role="alert">The recommendation timed out. Your project is unchanged. <button onClick={regenerateSection}>Retry</button></p>}
-            {pendingProposal&&<p>A validated recommendation is ready. Locked edits will be preserved.</p>}
-            <div className="coach-actions"><button onClick={pendingProposal?()=>{setProject(applyProposal(project,pendingProposal).project);setPendingProposal(null)}:applySuggestion} disabled={applied&&!pendingProposal}>{pendingProposal?"Apply regenerated suggestion":applied?"Suggestion applied":"Apply suggestion"}</button><button onClick={()=>setWhyOpen(value=>!value)}>Ask why</button><button onClick={regenerateSection} disabled={generationStatus==="loading"||["Brand","Launch"].includes(active)}>Regenerate section</button></div>
+            {pendingProposal&&<p>A validated recommendation is ready. Your manual edits remain protected.</p>}
+            {!(["Brand","Launch"] as StudioStep[]).includes(active) && <label className="coach-instruction">Tell AI what to improve in this section<input value={generationInstruction} onChange={(event)=>setGenerationInstruction(event.target.value)} placeholder={`Example: Make the ${active.toLowerCase()} more specific`}/></label>}
+            <div className="coach-actions">{(pendingProposal||active==="Foundation")&&<button onClick={pendingProposal?()=>{setProject(applyProposal(project,pendingProposal).project);setPendingProposal(null);setApplied(true)}:applySuggestion} disabled={applied&&!pendingProposal}>{pendingProposal?"Apply regenerated suggestion":applied?"Suggestion applied":"Apply suggestion"}</button>}<button onClick={()=>setWhyOpen(value=>!value)}>Ask why</button><button aria-label={`Regenerate section: ${active}`} onClick={regenerateSection} disabled={generationStatus==="loading"||(["Brand","Launch"] as StudioStep[]).includes(active)}>Regenerate {active}</button></div>
           </div>
         </section>
       </div>

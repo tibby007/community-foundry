@@ -33,6 +33,17 @@ describe("template library", () => {
     expect(COMMUNITY_TEMPLATES[0].foundation.audience).not.toContain("Women over 40");
   });
 
+  it("turns a scratch idea into a specific foundation instead of generic placeholder copy", () => {
+    const project = createProjectFromScratch("I help women over 50 build AI agents");
+
+    expect(project.foundation.name).toMatch(/AI Agent/i);
+    expect(project.foundation.name).not.toBe("My Expert Community");
+    expect(project.foundation.audience).toMatch(/women over 50/i);
+    expect(project.foundation.promise).toMatch(/build AI agents/i);
+    expect(project.foundation.pain).toMatch(/AI agent/i);
+    expect(project.foundation.transformation).toMatch(/AI agent/i);
+  });
+
   it("requires financial and health disclaimers on regulated templates", () => {
     const finance = COMMUNITY_TEMPLATES.find((item) => item.id === "debt-freedom-accountability");
     const fitness = COMMUNITY_TEMPLATES.find((item) => item.id === "fitness-habit-accountability");

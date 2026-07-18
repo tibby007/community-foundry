@@ -15,16 +15,24 @@ test("all ten proven templates open complete Studio projects", async ({ page }) 
 
 test("build-from-scratch creates an editable autosaved project", async ({ page }) => {
   await page.goto("/");
-  await page.getByLabel("Describe your community idea").fill("I teach nonprofit leaders to build sustainable donor systems");
+  await page.getByLabel("Describe your community idea").fill("I help women over 50 build AI agents");
   await page.getByRole("button", { name: /build from scratch with ai/i }).click();
-  await expect(page.getByLabel("Community name")).toHaveValue("My Expert Community");
-  await page.getByLabel("Community name").fill("The Sustainable Donor Lab");
+  await expect(page.getByLabel("Community name")).toHaveValue("AI Agent Builder Lab");
+  await expect(page.getByLabel("Ideal member")).toHaveValue(/women over 50/i);
+  await expect(page.getByLabel("Community promise")).toHaveValue(/build AI agents/i);
+  await page.getByRole("button", { name: /continue to offer/i }).click();
+  await expect(page.getByRole("heading", { name: "Offer" })).toBeVisible();
+  await page.getByRole("button", { name: /regenerate section: offer/i }).click();
+  await expect(page.getByText(/focused offer recommendation is ready/i)).toBeVisible({ timeout: 30_000 });
+  await page.getByRole("button", { name: /apply regenerated suggestion/i }).click();
+  await page.getByRole("button", { name: /01\s*foundation/i }).click();
+  await page.getByLabel("Community name").fill("The Women 50+ AI Agent Lab");
   await page.waitForTimeout(600);
   const routeId = page.url().split("/").pop();
   const savedName = await page.evaluate((id) => JSON.parse(window.localStorage.getItem(`community-foundry.project.${id}`) ?? "{}").foundation?.name, routeId);
-  expect(savedName).toBe("The Sustainable Donor Lab");
+  expect(savedName).toBe("The Women 50+ AI Agent Lab");
   await page.reload();
-  await expect(page.getByLabel("Community name")).toHaveValue("The Sustainable Donor Lab");
+  await expect(page.getByLabel("Community name")).toHaveValue("The Women 50+ AI Agent Lab");
 });
 
 test("all strategy stages expose editable controls and contextual previews", async ({ page }) => {

@@ -9,15 +9,38 @@ export interface GenerationProvider {
 
 export const fallbackProvider: GenerationProvider = {
   async generate(request) {
-    const foundationChanges = [
-      { path: "foundation.name", value: "The Second Act Consulting Lab" },
-      { path: "foundation.promise", value: "Turn your corporate experience into a focused consulting offer and land your first five clients." },
-    ];
+    const { project } = request;
+    const changesBySection: Partial<Record<GenerationRequest["section"], Array<{ path: string; value: string }>>> = {
+      foundation: [
+        { path: "foundation.promise", value: `${project.foundation.promise.replace(/[.]$/, "")} Members complete their first visible milestone within 30 days.` },
+        { path: "foundation.differentiator", value: `${project.foundation.differentiator.replace(/[.]$/, "")} Every member leaves each stage with something built, tested, or published.` },
+      ],
+      offer: [
+        { path: "offer.rationale", value: `Members pay for a faster path to ${project.foundation.transformation.toLowerCase()}, direct feedback, and accountability that free information cannot provide.` },
+        { path: "offer.foundingOffer", value: `Invite the first 25 members into ${project.foundation.name} at the founding rate, with a kickoff build session and locked-in pricing.` },
+      ],
+      community: [
+        { path: "community.startHere", value: `Welcome to ${project.foundation.name}. Introduce yourself, choose one 30-day outcome, and complete the first classroom action.` },
+        { path: "community.introductionPrompt", value: `What do you want to complete in the next 30 days, what is blocking you now, and what experience can you share with another member?` },
+      ],
+      classroom: [
+        { path: "classroom.title", value: `${project.foundation.name} Implementation Roadmap` },
+        { path: "classroom.transformation", value: `${project.foundation.transformation}. Each module ends with a concrete member deliverable.` },
+      ],
+      engagement: [
+        { path: "engagement.firstDay", value: `Post an introduction, choose one 30-day build goal, and complete the first quick-win action.` },
+        { path: "engagement.challenge", value: `Complete the seven-day build momentum sprint and share a working result with the community.` },
+      ],
+      promotion: [
+        { path: "promotion.leadMagnet", value: `The ${project.foundation.name} 30-Day Quick-Start Planner` },
+        { path: "promotion.referralCampaign", value: `Invite one qualified peer. When they join, both members receive a bonus group implementation clinic.` },
+      ],
+    };
     return GenerationResponseSchema.parse({
       proposal: {
         id: `fallback-${request.section}`,
         section: request.section,
-        changes: request.section === "foundation" ? foundationChanges : [],
+        changes: changesBySection[request.section] ?? [],
       },
       explanation: "This recommendation makes the outcome specific, measurable, and easier for a prospective member to understand.",
       confidence: 0.9,

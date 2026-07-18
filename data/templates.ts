@@ -183,20 +183,89 @@ export function createProjectFromTemplate(templateId: string, ownerInput: string
   };
 }
 
+function titleCaseIdea(value: string) {
+  return value
+    .replace(/\bai\b/gi, "AI")
+    .replace(/\b\w/g, (character) => character.toUpperCase())
+    .replace(/\bAgents\b/, "Agent");
+}
+
+function parseScratchIdea(ownerInput: string) {
+  const idea = ownerInput.trim().replace(/[.!?]+$/, "");
+  const withoutLead = idea.replace(/^i\s+(?:help|teach|show|guide)\s+/i, "");
+  const actionMatch = withoutLead.match(/\b(build(?:ing)?|creat(?:e|ing)|launch(?:ing)?|start(?:ing)?|learn(?:ing)?|master(?:ing)?|grow(?:ing)?|develop(?:ing)?|design(?:ing)?|automat(?:e|ing)|improv(?:e|ing)|becom(?:e|ing)|turn(?:ing)?|scal(?:e|ing)|sell(?:ing)?|find(?:ing)?|land(?:ing)?|writ(?:e|ing))\b/i);
+  if (!actionMatch || actionMatch.index === undefined) {
+    return {
+      audience: withoutLead || "people ready to learn and take action",
+      outcome: "achieve a clear, practical result",
+      topic: "Practical Results",
+    };
+  }
+
+  const audience = withoutLead.slice(0, actionMatch.index).replace(/\s+to$/i, "").trim();
+  const rawVerb = actionMatch[0].toLowerCase();
+  const verbMap: Record<string, string> = {
+    building: "build", creating: "create", launching: "launch", starting: "start", learning: "learn",
+    mastering: "master", growing: "grow", developing: "develop", designing: "design", automating: "automate",
+    improving: "improve", becoming: "become", turning: "turn", scaling: "scale", selling: "sell",
+    finding: "find", landing: "land", writing: "write",
+  };
+  const verb = verbMap[rawVerb] ?? rawVerb;
+  const object = withoutLead.slice(actionMatch.index + actionMatch[0].length).trim();
+  const outcome = `${verb} ${object}`.trim();
+  const topic = /\bai agents?\b/i.test(object)
+    ? "AI Agent Builder"
+    : titleCaseIdea(object.split(/\s+/).slice(0, 4).join(" ") || outcome);
+
+  return { audience: audience || withoutLead, outcome, topic };
+}
+
 export function createProjectFromScratch(ownerInput: string): CommunityProject {
   const project = createProjectFromTemplate("consulting-client-accelerator", ownerInput);
+  const idea = parseScratchIdea(ownerInput);
+  const name = `${idea.topic} Lab`;
+  const transformation = `Go from unsure where to begin to confidently ${idea.outcome} with a working result to share`;
   return {
     ...project,
     templateId: "custom",
     foundation: {
       ...project.foundation,
-      name: "My Expert Community",
-      alternatives: ["The Implementation Collective", "The Results Lab"],
-      promise: "Turn hard-won expertise into a clear member transformation with a practical roadmap and accountability.",
-      audience: ownerInput,
-      pain: "The audience has useful information but lacks a structured path, feedback, and consistent action.",
-      transformation: "Move from scattered effort to a repeatable, supported result",
-      description: `A guided community for ${ownerInput.toLowerCase()} with practical education, peer support, and visible progress.`,
+      name,
+      alternatives: [`${idea.topic} Collective`, `${idea.topic} Accelerator`],
+      promise: `Help ${idea.audience} ${idea.outcome} through guided projects, practical feedback, and peer accountability.`,
+      audience: idea.audience,
+      pain: `${idea.audience} want to ${idea.outcome}, but they lack a clear ${idea.topic.toLowerCase()} roadmap, hands-on feedback, and consistent support.`,
+      transformation,
+      differentiator: `A build-first community where members learn by doing and leave with visible progress toward their own ${idea.topic.toLowerCase()} outcome.`,
+      membershipCriteria: `For ${idea.audience.toLowerCase()} who are ready to ${idea.outcome} and participate in practical build sessions.`,
+      description: `${name} helps ${idea.audience.toLowerCase()} ${idea.outcome} with a focused roadmap, practical projects, and peer support.`,
+    },
+    offer: {
+      ...project.offer,
+      rationale: `Members are paying for a faster path to ${idea.outcome}, hands-on feedback, and the accountability to finish what they start.`,
+      foundingOffer: `Founding access to ${name} at $49 per month for the first 25 members.`,
+    },
+    community: {
+      ...project.community,
+      welcomePost: `Welcome to ${name}. This is a working community for ${idea.audience.toLowerCase()} who are ready to ${idea.outcome}.`,
+      introductionPrompt: `Tell us why you want to ${idea.outcome}, what you have tried, and what you want to complete in the next 30 days.`,
+    },
+    classroom: {
+      ...project.classroom,
+      title: `${name} Roadmap`,
+      transformation,
+      modules: ["Define the Outcome", "Choose the Right Tools", "Design the Build", "Create the First Version", "Test and Improve", "Launch and Measure"].map((title, index) => ({
+        id: `module-${index + 1}`,
+        title,
+        milestone: `Member completes ${title.toLowerCase()} and shares the result.`,
+        lessons: [lesson(title, 1), lesson(title, 2)],
+      })),
+    },
+    promotion: {
+      ...project.promotion,
+      foundingCampaign: `Invite the first 25 members to help shape ${name} while they learn to ${idea.outcome}.`,
+      leadMagnet: `The ${idea.topic} Quick-Start Planner`,
+      launchEvent: `A 45-minute live workshop showing ${idea.audience.toLowerCase()} how to ${idea.outcome}.`,
     },
   };
 }
