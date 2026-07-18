@@ -1,0 +1,14 @@
+.superpowers/
+.worktrees/
+node_modules/
+.next/
+out/
+.netlify/
+playwright-report/
+test-results/
+coverage/
+.env
+.env.local
+.env.*.local
+!.env.example
+.DS_Store
