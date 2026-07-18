@@ -1,5 +1,18 @@
 import { expect, test } from "@playwright/test";
 
+test("all ten proven templates open complete Studio projects", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: /start with a proven template/i }).click();
+  const templateNames = ["Consulting Client Accelerator","Creator Revenue Lab","AI-Powered Business Builder","Freelancer Growth Collective","Debt Freedom and Money Accountability","Fitness and Habit Accountability","Career Pivot and Job Search Lab","Real Estate Investor Launchpad","Language Learning Accountability Club","Productivity and Focus Systems"];
+  for (const name of templateNames) {
+    await page.getByRole("button", { name: new RegExp(name, "i") }).click();
+    await expect(page.getByRole("heading", { name: "Foundation" })).toBeVisible();
+    await expect(page.getByLabel("Community name")).toHaveValue(name);
+    await page.getByRole("link", { name: /back to templates/i }).click();
+    await page.getByRole("button", { name: /start with a proven template/i }).click();
+  }
+});
+
 test("build-from-scratch creates an editable autosaved project", async ({ page }) => {
   await page.goto("/");
   await page.getByLabel("Describe your community idea").fill("I teach nonprofit leaders to build sustainable donor systems");

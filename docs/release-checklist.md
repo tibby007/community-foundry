@@ -2,42 +2,43 @@
 
 ## Product
 
-- [ ] Landing idea flow opens the Studio.
-- [ ] All ten templates open successfully.
-- [ ] Build-from-scratch path remains available.
-- [ ] AI Coach suggestion can be applied and undone.
-- [ ] Studio edits survive a reload.
-- [ ] Classroom and engagement stages render.
-- [ ] Promotion score improves from 74 to 86.
-- [ ] Five social posts and three emails render.
-- [ ] Brand generation works with OpenAI and falls back safely without it.
-- [ ] Blueprint, JSON, and both CSV exports download.
-- [ ] Skool capability report distinguishes supported and unsupported actions.
+- [x] Landing idea flow opens the Studio.
+- [x] All ten templates open successfully.
+- [x] Build-from-scratch path remains available.
+- [x] AI Coach suggestion can be applied and undone.
+- [x] Studio edits survive a reload.
+- [x] Classroom and engagement stages render.
+- [x] Promotion score improves from 74 to 86.
+- [x] Five social posts and three emails render.
+- [x] Brand generation falls back safely without credentials.
+- [ ] Live OpenAI brand generation passes after credentials are configured.
+- [x] Blueprint, JSON, both CSV exports, and campaign pack download.
+- [x] Skool capability report distinguishes supported and unsupported actions.
 
 ## Engineering
 
-- [ ] Unit and component tests pass.
-- [ ] TypeScript passes.
-- [ ] ESLint passes.
-- [ ] Production build passes.
-- [ ] Playwright desktop and mobile flows pass.
-- [ ] No credentials are committed.
-- [ ] `DEMO_FALLBACK=true` has been tested.
+- [x] Unit and component tests pass.
+- [x] TypeScript passes.
+- [x] ESLint passes.
+- [x] Production build passes.
+- [x] Playwright desktop and mobile flows pass.
+- [x] No credentials are committed.
+- [x] Credential-free fallback has been tested.
 
 ## Netlify
 
 - [ ] Site is linked to the correct repository and feature release branch.
-- [ ] Build command is `npm run build`.
-- [ ] Publish directory is `.next`.
-- [ ] Node version is 22.
+- [x] Build command is `npm run build`.
+- [x] Publish directory is `.next`.
+- [x] Node version is 22.
 - [ ] Required environment variables are configured in Netlify.
-- [ ] Production deployment is healthy.
-- [ ] Landing, `/build/demo`, generation, images, and downloads pass on the production URL.
+- [x] Production deployment is healthy.
+- [x] Landing, `/build/demo`, generation fallback, image fallback, and downloads pass on the production URL.
 
 ## Presentation
 
-- [ ] Use the seeded consulting idea.
+- [x] Seeded consulting idea is available at `/build/demo`.
 - [ ] Browser zoom is 100 percent.
 - [ ] Notifications and unrelated tabs are closed.
-- [ ] Credential-free fallback has been rehearsed.
-- [ ] Three-minute script has been timed twice.
+- [x] Credential-free fallback has been rehearsed and recorded.
+- [x] Automated demo flow completes comfortably under three minutes.
