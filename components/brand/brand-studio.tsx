@@ -1,0 +1,6 @@
+"use client";
+import Image from "next/image";
+import {Download,ImageIcon,RefreshCw} from "lucide-react";
+import type {CommunityProject} from "@/domain/project-schema";
+const assets=[{type:"icon",label:"Community icon",src:"/demo/community-icon.svg",width:180,height:180},{type:"cover",label:"Community cover",src:"/demo/community-cover.svg",width:480,height:240},{type:"promotion",label:"Launch graphic",src:"/demo/promo-graphic.svg",width:240,height:240}] as const;
+export function BrandStudio({project}:{project:CommunityProject}){return <div className="brand-studio"><div className="brand-direction"><span><ImageIcon size={15}/> {project.brand.direction} direction</span><div>{project.brand.palette.map(color=><i key={color} style={{background:color}} title={color}/>)}</div><p>{project.brand.typography}</p></div><div className="brand-assets">{assets.map(asset=><article key={asset.type}><div className={`asset-frame ${asset.type}`}><Image src={asset.src} alt={`${project.foundation.name} ${asset.label}`} width={asset.width} height={asset.height}/></div><footer><div><b>{asset.label}</b><small>Demo-safe generated fallback</small></div><a href={asset.src} download><Download size={14}/><span className="sr-only">Download {asset.label}</span></a><button aria-label={`Generate variation for ${asset.label}`}><RefreshCw size={14}/></button></footer></article>)}</div></div>}
