@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, ChevronRight, Sparkles, Undo2 } from "lucide-react";
 import type { CommunityProject } from "@/domain/project-schema";
@@ -25,6 +25,13 @@ export function StudioShell({ initialProject }: { initialProject: CommunityProje
   const tier = project.offer.tiers[0];
 
   const categoryPreview = useMemo(() => project.categories.slice(0, 4), [project.categories]);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      window.localStorage.setItem(`community-foundry.project.${project.id}`, JSON.stringify(project));
+    }, 250);
+    return () => window.clearTimeout(timeout);
+  }, [project]);
 
   function applySuggestion() {
     setProject((current) => applyProposal(current, {
@@ -51,7 +58,7 @@ export function StudioShell({ initialProject }: { initialProject: CommunityProje
           <Link href="/" className="back-link"><ArrowLeft size={15} /> Back to templates</Link>
           <p>BUILD YOUR COMMUNITY</p>
           {steps.map((step, index) => (
-            <button className={active === step ? "rail-step selected" : "rail-step"} key={step} onClick={() => setActive(step)}>
+            <button aria-label={`${String(index + 1).padStart(2, "0")} ${step}`} className={active === step ? "rail-step selected" : "rail-step"} key={step} onClick={() => setActive(step)}>
               <span>{String(index + 1).padStart(2, "0")}</span><b>{step}</b>{index < 3 && <Check size={12} />}
             </button>
           ))}

@@ -91,8 +91,18 @@ const buildTemplate = (seed: TemplateSeed): CommunityTemplate => ({
     leadMagnet: `The ${seed.title} Quick-Start Scorecard`,
     referralCampaign: "Invite one qualified peer and both members receive a bonus implementation clinic.",
     first25Plan: "Recruit warm audience members, strategic partners, and ten hand-selected beta members before public launch.",
-    socialPosts: [],
-    emails: [],
+    socialPosts: [
+      `You do not need another pile of advice. You need a clear path to ${seed.outcome.toLowerCase()}. That is what we are building inside ${seed.title}.`,
+      `What is the biggest thing standing between you and this result: ${seed.outcome.toLowerCase()}? I am using the answers to shape our founding-member experience.`,
+      `Behind the scenes: ${seed.title} combines a step-by-step classroom, practical action sprints, and the kind of accountability that keeps good plans from collecting dust.`,
+      `Founding members of ${seed.title} will help shape the community and lock in early access at $${seed.price}/month. Want the details?`,
+      `Doors are open. If you are ready to ${seed.outcome.toLowerCase()}, join the first 25 members of ${seed.title}.`,
+    ],
+    emails: [
+      `Subject: A clearer path to ${seed.outcome.toLowerCase()}\n\nI am building ${seed.title} for ${seed.audience.toLowerCase()}. It turns scattered information into a practical roadmap with support and accountability. Reply if you want founding-member details.`,
+      `Subject: What founding members get\n\nFounding members receive the complete starter classroom, a live implementation session, and our member accountability system for $${seed.price}/month.`,
+      `Subject: Founding doors are open\n\n${seed.title} is now accepting its first 25 members. If you are ready to ${seed.outcome.toLowerCase()}, this is your invitation to build alongside us.`,
+    ],
   },
   brand: {
     direction: seed.direction,
