@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ArrowLeft, Check, ChevronRight, Sparkles, Undo2 } from "lucide-react";
 import type { CommunityProject } from "@/domain/project-schema";
 import { applyProposal, undoLastChange } from "@/domain/proposals";
+import { ClassroomEditor } from "@/components/studio/classroom-editor";
+import { EngagementEditor } from "@/components/studio/engagement-editor";
 
 const steps = ["Foundation", "Offer", "Community", "Classroom", "Engagement", "Brand", "Promotion", "Launch"];
 
@@ -50,15 +52,16 @@ export function StudioShell({ initialProject }: { initialProject: CommunityProje
 
         <section className="studio-workspace">
           <div className="workspace-heading"><div><p>STEP {steps.indexOf(active) + 1} OF 8</p><h1>{active}</h1></div><button onClick={() => setProject((value) => undoLastChange(value))}><Undo2 size={15} /> Undo</button></div>
-          <p className="workspace-intro">Shape the promise people will immediately understand and want to be part of.</p>
+          <p className="workspace-intro">{active === "Classroom" ? "Turn the transformation into a clear member journey." : active === "Engagement" ? "Create the habits that keep members participating and renewing." : "Shape the promise people will immediately understand and want to be part of."}</p>
 
-          <div className="editor-card">
+          {active === "Classroom" ? <ClassroomEditor project={project} /> : active === "Engagement" ? <EngagementEditor project={project} /> : <><div className="editor-card">
             <label>Community name<input value={project.foundation.name} onChange={(event) => setProject({ ...project, foundation: { ...project.foundation, name: event.target.value }, lockedPaths: [...new Set([...project.lockedPaths, "foundation.name"])] })} /></label>
             <label>Community promise<textarea value={project.foundation.promise} onChange={(event) => setProject({ ...project, foundation: { ...project.foundation, promise: event.target.value }, lockedPaths: [...new Set([...project.lockedPaths, "foundation.promise"])] })} /></label>
             <label>Ideal member<textarea value={project.foundation.audience} readOnly /></label>
           </div>
 
           <div className="offer-strip"><div><small>RECOMMENDED MODEL</small><strong>{project.offer.model} · ${tier.monthlyPrice}/month</strong></div><div><small>FOUNDING OFFER</small><span>{project.offer.foundingOffer}</span></div></div>
+          </>}
         </section>
 
         <section className="studio-preview-panel">
