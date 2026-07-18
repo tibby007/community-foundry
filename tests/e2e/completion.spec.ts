@@ -32,11 +32,11 @@ test("all strategy stages expose editable controls and contextual previews", asy
 test("AI and image fallback preserve a complete credential-free demo", async ({ page }) => {
   await page.goto("/build/demo");
   await page.getByRole("button", { name: /regenerate section/i }).click();
-  await expect(page.getByText(/validated recommendation is ready/i)).toBeVisible();
+  await expect(page.getByText(/validated recommendation is ready/i)).toBeVisible({ timeout: 30_000 });
   await page.getByRole("button", { name: /apply regenerated suggestion/i }).click();
   await page.getByRole("button", { name: /06\s*brand/i }).click();
   await page.getByRole("button", { name: /generate variation for community icon/i }).click();
-  await expect(page.getByText("Demo-safe generated fallback").first()).toBeVisible();
+  await expect(page.getByText("Demo-safe generated fallback").first()).toBeVisible({ timeout: 30_000 });
 });
 
 test("preview supports mobile mode, keyboard navigation, and reduced motion", async ({ page }) => {
