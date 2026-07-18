@@ -44,6 +44,15 @@ describe("template library", () => {
     expect(project.foundation.transformation).toMatch(/AI agent/i);
   });
 
+  it("personalizes unrelated scratch ideas without leaking the AI-agent example", () => {
+    const project = createProjectFromScratch("I help local business owners automate client follow-up");
+
+    expect(project.foundation.name).toMatch(/Client Follow-Up/i);
+    expect(project.foundation.audience).toMatch(/local business owners/i);
+    expect(project.foundation.promise).toMatch(/automate client follow-up/i);
+    expect(project.foundation.description).not.toMatch(/AI agent|women over 50/i);
+  });
+
   it("requires financial and health disclaimers on regulated templates", () => {
     const finance = COMMUNITY_TEMPLATES.find((item) => item.id === "debt-freedom-accountability");
     const fitness = COMMUNITY_TEMPLATES.find((item) => item.id === "fitness-habit-accountability");

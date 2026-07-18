@@ -199,6 +199,7 @@ function parseScratchIdea(ownerInput: string) {
       audience: withoutLead || "people ready to learn and take action",
       outcome: "achieve a clear, practical result",
       topic: "Practical Results",
+      verb: "achieve",
     };
   }
 
@@ -213,17 +214,20 @@ function parseScratchIdea(ownerInput: string) {
   const verb = verbMap[rawVerb] ?? rawVerb;
   const object = withoutLead.slice(actionMatch.index + actionMatch[0].length).trim();
   const outcome = `${verb} ${object}`.trim();
-  const topic = /\bai agents?\b/i.test(object)
-    ? "AI Agent Builder"
-    : titleCaseIdea(object.split(/\s+/).slice(0, 4).join(" ") || outcome);
+  const topic = titleCaseIdea(object.split(/\s+/).slice(0, 4).join(" ") || outcome);
 
-  return { audience: audience || withoutLead, outcome, topic };
+  return { audience: audience || withoutLead, outcome, topic, verb };
 }
 
 export function createProjectFromScratch(ownerInput: string): CommunityProject {
   const project = createProjectFromTemplate("consulting-client-accelerator", ownerInput);
   const idea = parseScratchIdea(ownerInput);
-  const name = `${idea.topic} Lab`;
+  const namingSuffix: Record<string, string> = {
+    build: "Builder", automate: "Automation", create: "Creator", launch: "Launch", learn: "Learning",
+    master: "Mastery", grow: "Growth", develop: "Development", design: "Design", improve: "Improvement",
+    become: "Transformation", scale: "Growth", sell: "Sales", find: "Discovery", land: "Success", write: "Writing",
+  };
+  const name = `${idea.topic} ${namingSuffix[idea.verb] ?? "Results"} Lab`.replace(/\s+/g, " ");
   const transformation = `Go from unsure where to begin to confidently ${idea.outcome} with a working result to share`;
   return {
     ...project,
