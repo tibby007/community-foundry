@@ -187,7 +187,6 @@ export function createProjectFromScratch(ownerInput: string): CommunityProject {
   const project = createProjectFromTemplate("consulting-client-accelerator", ownerInput);
   return {
     ...project,
-    id: `custom-${project.id}`,
     templateId: "custom",
     foundation: {
       ...project.foundation,
