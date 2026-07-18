@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { createProjectFromScratch, createProjectFromTemplate } from "@/data/templates";
 import { GenerationResponseSchema } from "@/lib/ai/contracts";
-import { fallbackProvider } from "@/lib/ai/provider";
+import { fallbackProvider, settleWithin } from "@/lib/ai/provider";
 
 describe("AI generation provider", () => {
+  it("stops waiting when a live provider exceeds the demo response budget", async () => {
+    await expect(settleWithin(new Promise(() => undefined), 10)).rejects.toThrow("timed out");
+  });
+
   it("returns a valid deterministic foundation proposal", async () => {
     const response = await fallbackProvider.generate({
       project: createProjectFromTemplate("consulting-client-accelerator", "Women over 40"),

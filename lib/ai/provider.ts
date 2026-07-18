@@ -7,6 +7,18 @@ export interface GenerationProvider {
   generate(request: GenerationRequest): Promise<GenerationResponse>;
 }
 
+export async function settleWithin<T>(promise: Promise<T>, milliseconds: number): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error("AI generation timed out")), milliseconds);
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+}
+
 export const fallbackProvider: GenerationProvider = {
   async generate(request) {
     const { project } = request;
@@ -57,7 +69,7 @@ export const openAIProvider: GenerationProvider = {
       model: process.env.OPENAI_MODEL ?? "gpt-5.4",
       input: buildGenerationPrompt(request),
       text: { format: zodTextFormat(GenerationResponseSchema, "community_proposal") },
-    }, { timeout: 20_000 });
+    }, { timeout: 7_000 });
     if (!response.output_parsed) throw new Error("The model returned no structured proposal.");
     return GenerationResponseSchema.parse({ ...response.output_parsed, meta: { provider: "openai" } });
   },
@@ -66,7 +78,7 @@ export const openAIProvider: GenerationProvider = {
 export async function generateWithFallback(request: GenerationRequest) {
   if (process.env.DEMO_FALLBACK === "true" || !process.env.OPENAI_API_KEY) return fallbackProvider.generate(request);
   try {
-    return await openAIProvider.generate(request);
+    return await settleWithin(openAIProvider.generate(request), 8_000);
   } catch {
     return fallbackProvider.generate(request);
   }
