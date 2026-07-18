@@ -41,11 +41,19 @@ export const ClassroomSchema = z.object({
 
 export const PromotionSchema = z.object({
   channels: z.array(z.string().min(1)).min(2),
+  channelRationale: z.string().min(1),
+  founderWorkload: z.string().min(1),
+  launchPlan: z.array(z.string().min(1)).length(30),
+  prelaunchSequence: z.array(z.string().min(1)).min(3),
+  foundingCampaign: z.string().min(1),
   leadMagnet: z.string().min(1),
   referralCampaign: z.string().min(1),
   first25Plan: z.string().min(1),
   socialPosts: z.array(z.string()).default([]),
   emails: z.array(z.string()).default([]),
+  partnerships: z.array(z.string().min(1)).min(1),
+  launchEvent: z.string().min(1),
+  risks: z.array(z.string().min(1)).min(1),
 });
 
 export const EngagementSchema = z.object({
@@ -55,6 +63,11 @@ export const EngagementSchema = z.object({
   challenge: z.string().min(1),
   recognition: z.string().min(1),
   founderCadence: z.string().min(1),
+  calendar: z.array(z.string().min(1)).length(30),
+  officeHours: z.string().min(1),
+  spotlightFormat: z.string().min(1),
+  reengagementMessages: z.array(z.string().min(1)).min(2),
+  churnWarnings: z.array(z.string().min(1)).min(2),
 });
 
 export const BrandSchema = z.object({
@@ -86,6 +99,7 @@ export const CommunityProjectSchema = z.object({
   updatedAt: z.string().datetime(),
   foundation: z.object({
     name: z.string().min(1),
+    alternatives: z.array(z.string().min(1)).min(2),
     promise: z.string().min(1),
     audience: z.string().min(1),
     pain: z.string().min(1),
@@ -93,6 +107,7 @@ export const CommunityProjectSchema = z.object({
     differentiator: z.string().min(1),
     personality: z.string().min(1),
     authority: z.string().min(1),
+    membershipCriteria: z.string().min(1),
     description: z.string().min(1),
     rules: z.array(z.string()).min(3),
   }),
@@ -102,10 +117,24 @@ export const CommunityProjectSchema = z.object({
     foundingOffer: z.string().min(1),
     tiers: z.array(PricingTierSchema).min(1),
     bonuses: z.array(z.string()).min(1),
+    trialRecommendation: z.string().min(1),
+    upsells: z.array(z.string().min(1)).min(1),
+    riskReversal: z.string().min(1),
+    revenueScenarios: z.object({ members25: z.number().nonnegative(), members100: z.number().nonnegative(), members500: z.number().nonnegative() }),
     retentionHooks: z.array(z.string()).min(2),
   }),
   categories: z.array(CategorySchema).min(4),
   tags: z.array(z.string().min(1)).min(4),
+  community: z.object({
+    startHere: z.string().min(1),
+    welcomePost: z.string().min(1),
+    introductionPrompt: z.string().min(1),
+    weeklyPrompts: z.array(z.string().min(1)).min(2),
+    feedbackGuidance: z.string().min(1),
+    resourceRules: z.string().min(1),
+    moderatorGuidelines: z.string().min(1),
+    onboardingQuestions: z.array(z.string().min(1)).min(2),
+  }),
   classroom: ClassroomSchema,
   engagement: EngagementSchema,
   promotion: PromotionSchema,

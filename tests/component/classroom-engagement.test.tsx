@@ -9,9 +9,9 @@ describe("Classroom and engagement stages", () => {
     const user = userEvent.setup();
     render(<StudioShell initialProject={createProjectFromTemplate("consulting-client-accelerator", "Women over 40")} />);
     await user.click(screen.getByRole("button", { name: /04\s*classroom/i }));
-    expect(screen.getByText("Choose a Profitable Niche")).toBeVisible();
+    expect(screen.getByDisplayValue("Choose a Profitable Niche")).toBeVisible();
     await user.click(screen.getByRole("button", { name: /05\s*engagement/i }));
-    expect(screen.getByText("Monday commitments")).toBeVisible();
-    expect(screen.getByText(/seven-day momentum sprint/i)).toBeVisible();
+    expect(screen.getByDisplayValue(/Monday commitments/)).toBeVisible();
+    expect(screen.getByDisplayValue(/seven-day momentum sprint/i)).toBeVisible();
   });
 });

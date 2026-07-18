@@ -35,6 +35,7 @@ const buildTemplate = (seed: TemplateSeed): CommunityTemplate => ({
   id: seed.id,
   foundation: {
     name: seed.title,
+    alternatives: [`${seed.title} Collective`, `${seed.title} Lab`],
     promise: `Help members ${seed.outcome.toLowerCase()} with a clear plan and peer accountability.`,
     audience: seed.audience,
     pain: seed.pain,
@@ -42,6 +43,7 @@ const buildTemplate = (seed: TemplateSeed): CommunityTemplate => ({
     differentiator: "A guided implementation community where every lesson creates a visible result.",
     personality: "Clear, encouraging, practical, and progress obsessed.",
     authority: "Led by a practitioner who teaches from lived and client experience.",
+    membershipCriteria: `For ${seed.audience.toLowerCase()} who are ready to take consistent action and support peers.`,
     description: `${seed.title} gives ${seed.audience.toLowerCase()} the roadmap, support, and accountability to ${seed.outcome.toLowerCase()}.`,
     rules: ["Be useful before being promotional.", "Protect member privacy.", "Share progress and ask specific questions."],
   },
@@ -57,6 +59,10 @@ const buildTemplate = (seed: TemplateSeed): CommunityTemplate => ({
       benefits: ["Complete starter classroom", "Live group implementation session", "Member accountability system"],
     }],
     bonuses: ["Founding-member kickoff workshop"],
+    trialRecommendation: "Use a seven-day preview only when it includes an activation task and a clear conversion moment.",
+    upsells: ["Private implementation intensive"],
+    riskReversal: "Cancel anytime. Founding members keep their original rate while continuously enrolled.",
+    revenueScenarios: { members25: seed.price * 25, members100: seed.price * 100, members500: seed.price * 500 },
     retentionHooks: ["Monthly implementation sprint", "Member milestone recognition"],
   },
   categories: seed.categories.map((name, index) => ({
@@ -66,6 +72,16 @@ const buildTemplate = (seed: TemplateSeed): CommunityTemplate => ({
     emoji: ["👋", "🎯", "🤝", "🏆"][index],
   })),
   tags: ["new-member", "question", "accountability", "win", "resource"],
+  community: {
+    startHere: "Read the welcome post, introduce yourself, choose one goal, and complete the first classroom action.",
+    welcomePost: `Welcome to ${seed.title}. This is a working community built around progress, useful feedback, and visible member wins.`,
+    introductionPrompt: "Tell us where you are now, the result you want in the next 90 days, and the experience you can share with another member.",
+    weeklyPrompts: ["What is your one priority this week?", "What moved forward, what got stuck, and what will you change next?"],
+    feedbackGuidance: "Ask a specific question, include relevant context, and say what kind of feedback would be useful.",
+    resourceRules: "Share resources with a short explanation of who they help. No unsolicited promotion or affiliate links.",
+    moderatorGuidelines: "Protect privacy, redirect vague asks, reward useful participation, and remove promotional spam quickly.",
+    onboardingQuestions: ["What result would make this membership valuable in 90 days?", "What is your biggest current obstacle?", "How did you hear about this community?"],
+  },
   classroom: {
     title: `${seed.title} Roadmap`,
     transformation: seed.outcome,
@@ -85,9 +101,19 @@ const buildTemplate = (seed: TemplateSeed): CommunityTemplate => ({
     challenge: "Complete the seven-day momentum sprint.",
     recognition: "Feature one member win in the weekly roundup.",
     founderCadence: "Three helpful posts, one live session, and two member check-ins each week.",
+    calendar: Array.from({length:30},(_,index)=>`Day ${index+1}: ${index===0?"Welcome and orientation":index%7===0?"Weekly reset and commitment":index%5===0?"Member win spotlight":"Focused action prompt and peer check-in"}`),
+    officeHours: "One weekly 45-minute implementation clinic with questions collected in advance.",
+    spotlightFormat: "Member goal, action taken, measurable progress, lesson learned, and next move.",
+    reengagementMessages: ["We saved your seat. What is the smallest next action we can help you complete?", "Your original goal is still here. Reply with the obstacle and we will point you to the right next step."],
+    churnWarnings: ["No introduction or classroom action in the first seven days", "Two missed weekly commitments or 21 days without participation"],
   },
   promotion: {
     channels: seed.channels,
+    channelRationale: `${seed.channels[0]} reaches the audience where expertise and proof can be demonstrated, while ${seed.channels[1]} adds borrowed trust.`,
+    founderWorkload: "Plan for three focused content blocks and five direct relationship conversations each week during launch.",
+    launchPlan: Array.from({length:30},(_,index)=>`Day ${index+1}: ${index<7?"Validate the message and recruit founding conversations":index<15?"Teach the problem and show the member journey":index<23?"Open founding enrollment and answer objections":"Use proof, referrals, and a clear closing deadline"}`),
+    prelaunchSequence: ["Invite ten ideal members to a problem-validation conversation.", "Publish a useful diagnostic and collect replies.", "Host a short workshop that previews the community method."],
+    foundingCampaign: `Invite the first 25 members to shape ${seed.title} and keep the $${seed.price} founding rate.`,
     leadMagnet: `The ${seed.title} Quick-Start Scorecard`,
     referralCampaign: "Invite one qualified peer and both members receive a bonus implementation clinic.",
     first25Plan: "Recruit warm audience members, strategic partners, and ten hand-selected beta members before public launch.",
@@ -103,6 +129,9 @@ const buildTemplate = (seed: TemplateSeed): CommunityTemplate => ({
       `Subject: What founding members get\n\nFounding members receive the complete starter classroom, a live implementation session, and our member accountability system for $${seed.price}/month.`,
       `Subject: Founding doors are open\n\n${seed.title} is now accepting its first 25 members. If you are ready to ${seed.outcome.toLowerCase()}, this is your invitation to build alongside us.`,
     ],
+    partnerships: [`Invite two trusted ${seed.audience.toLowerCase()}-adjacent experts to co-host a practical session.`],
+    launchEvent: `A 45-minute ${seed.title} Quick-Start Workshop with a live diagnostic and founding-member invitation.`,
+    risks: ["Launching to a cold audience without ten warm conversations first", "Promising broad access instead of a specific transformation"],
   },
   brand: {
     direction: seed.direction,
@@ -151,5 +180,24 @@ export function createProjectFromTemplate(templateId: string, ownerInput: string
     citations: [],
     lockedPaths: [],
     history: [],
+  };
+}
+
+export function createProjectFromScratch(ownerInput: string): CommunityProject {
+  const project = createProjectFromTemplate("consulting-client-accelerator", ownerInput);
+  return {
+    ...project,
+    id: `custom-${project.id}`,
+    templateId: "custom",
+    foundation: {
+      ...project.foundation,
+      name: "My Expert Community",
+      alternatives: ["The Implementation Collective", "The Results Lab"],
+      promise: "Turn hard-won expertise into a clear member transformation with a practical roadmap and accountability.",
+      audience: ownerInput,
+      pain: "The audience has useful information but lacks a structured path, feedback, and consistent action.",
+      transformation: "Move from scattered effort to a repeatable, supported result",
+      description: `A guided community for ${ownerInput.toLowerCase()} with practical education, peer support, and visible progress.`,
+    },
   };
 }

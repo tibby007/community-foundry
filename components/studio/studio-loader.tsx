@@ -14,5 +14,5 @@ export function StudioLoader({ projectId, fallbackProject }: { projectId: string
       if (parsed?.success) setProject(parsed.data);
     });
   }, [projectId]);
-  return <StudioShell initialProject={project} />;
+  return <StudioShell key={`${project.id}:${project.updatedAt}`} initialProject={project} storageKey={projectId} />;
 }

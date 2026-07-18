@@ -18,7 +18,7 @@ export type ProjectProposal = {
 const sectionRoots: Record<ProposalSection, string[]> = {
   foundation: ["foundation"],
   offer: ["offer"],
-  community: ["categories", "tags"],
+  community: ["community", "categories", "tags"],
   classroom: ["classroom"],
   engagement: ["engagement"],
   promotion: ["promotion"],

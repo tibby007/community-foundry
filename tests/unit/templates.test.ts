@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { COMMUNITY_TEMPLATES, createProjectFromTemplate } from "@/data/templates";
+import { COMMUNITY_TEMPLATES, createProjectFromScratch, createProjectFromTemplate } from "@/data/templates";
 import { CommunityProjectSchema } from "@/domain/project-schema";
 
 describe("template library", () => {
@@ -12,6 +12,13 @@ describe("template library", () => {
       expect(item.classroom.modules.length).toBeGreaterThanOrEqual(4);
       expect(item.promotion.channels.length).toBeGreaterThanOrEqual(2);
     }
+  });
+
+  it("creates a complete custom project without assigning a proven template", () => {
+    const project = createProjectFromScratch("Nonprofit leaders building donor systems");
+    expect(project.templateId).toBe("custom");
+    expect(project.foundation.audience).toContain("Nonprofit leaders");
+    expect(project.promotion.launchPlan).toHaveLength(30);
   });
 
   it("creates a valid editable project without mutating the template", () => {
