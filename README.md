@@ -2,6 +2,26 @@
 
 Community Foundry turns an expert's idea into a launch-ready Skool community business. It combines ten research-backed vertical templates, an AI-assisted Studio, classroom and engagement architecture, launch scoring, brand assets, campaign copy, and guaranteed exports.
 
+**Live demo:** [community-foundry-ai-marvels.netlify.app](https://community-foundry-ai-marvels.netlify.app)
+
+## Why I built it
+
+Community Foundry began with my frustration manually building my own Skool communities. Defining the offer, pricing, classroom, discussion structure, engagement plan, branding, and launch campaign took far longer than creating the community itself. I built Community Foundry to turn that fragmented process into one guided, editable workflow.
+
+## How Codex was used
+
+Codex was the development partner throughout the build. It helped translate the product idea into an implementation plan, build the Next.js application, connect OpenAI and Supabase, create the AI-assisted Community Studio, troubleshoot deployment issues, and verify the finished production experience with unit, component, and end-to-end browser tests.
+
+Codex also helped create the ten-template system, deterministic demo fallbacks, structured export packages, responsive previews, launch-scoring workflow, and guarded Skool capability adapter.
+
+## How GPT-5.6 Sol was used
+
+GPT-5.6 Sol powers the live community strategy experience through the OpenAI Responses API. It transforms incomplete user ideas into structured community plans, generates targeted recommendations, explains why those recommendations matter, and improves individual sections without silently replacing user-edited work.
+
+Model output is schema-validated before it enters application state. Users explicitly choose when to apply AI recommendations, and deterministic fallbacks preserve the complete product experience if an external request is unavailable.
+
+GPT Image powers optional community brand concepts and visual assets.
+
 ## Hackathon demo
 
 1. Open the landing page and enter: `I help women over 40 turn their corporate experience into a consulting business.`
