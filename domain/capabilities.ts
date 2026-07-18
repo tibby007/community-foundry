@@ -1,0 +1,5 @@
+export const SKOOL_ACTION_ALLOWLIST=["invite-member","unlock-course"] as const;
+export type SkoolAction=(typeof SKOOL_ACTION_ALLOWLIST)[number]|"create-community"|"create-classroom"|"create-category"|"delete-community";
+const exportOnlyActions=["create-community","create-classroom","create-category"];
+export function routePublishAction(action:SkoolAction,available:string[]){if(exportOnlyActions.includes(action))return {mode:"export" as const,reason:"unsupported" as const};if(!SKOOL_ACTION_ALLOWLIST.includes(action as (typeof SKOOL_ACTION_ALLOWLIST)[number]))return {mode:"export" as const,reason:"not-allowlisted" as const};if(!available.includes(action))return {mode:"export" as const,reason:"unsupported" as const};return {mode:"publish" as const,action}}
+export const desiredCapabilities=[{action:"create-community",label:"Create community"},{action:"create-category",label:"Create discussion categories"},{action:"create-classroom",label:"Create classroom"},{action:"invite-member",label:"Invite members"},{action:"unlock-course",label:"Unlock courses"}] as const;

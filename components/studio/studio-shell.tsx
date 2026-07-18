@@ -13,6 +13,7 @@ import { PromotionEditor } from "@/components/studio/promotion-editor";
 import { INITIAL_SCORE_VALUES,type ScoreValues } from "@/domain/scoring";
 import { BrandStudio } from "@/components/brand/brand-studio";
 import { ExportCenter } from "@/components/export/export-center";
+import { CapabilityReport } from "@/components/skool/capability-report";
 
 const steps = ["Foundation", "Offer", "Community", "Classroom", "Engagement", "Brand", "Promotion", "Launch"];
 
@@ -61,7 +62,7 @@ export function StudioShell({ initialProject }: { initialProject: CommunityProje
           <div className="workspace-heading"><div><p>STEP {steps.indexOf(active) + 1} OF 8</p><h1>{active}</h1></div><button onClick={() => setProject((value) => undoLastChange(value))}><Undo2 size={15} /> Undo</button></div>
           <p className="workspace-intro">{active === "Classroom" ? "Turn the transformation into a clear member journey." : active === "Engagement" ? "Create the habits that keep members participating and renewing." : "Shape the promise people will immediately understand and want to be part of."}</p>
 
-          {active === "Launch" ? <><LaunchScore values={scoreValues}/><MarketValidation templateId={project.templateId}/><ExportCenter project={project}/></> : active === "Brand" ? <BrandStudio project={project}/> : active === "Promotion" ? <PromotionEditor project={project} values={scoreValues} onApply={()=>setScoreValues({...scoreValues,transformationClarity:87,willingnessToPay:90,engagementRetention:90,acquisitionFeasibility:95})}/> : active === "Classroom" ? <ClassroomEditor project={project} /> : active === "Engagement" ? <EngagementEditor project={project} /> : <><div className="editor-card">
+          {active === "Launch" ? <><LaunchScore values={scoreValues}/><MarketValidation templateId={project.templateId}/><ExportCenter project={project}/><CapabilityReport/></> : active === "Brand" ? <BrandStudio project={project}/> : active === "Promotion" ? <PromotionEditor project={project} values={scoreValues} onApply={()=>setScoreValues({...scoreValues,transformationClarity:87,willingnessToPay:90,engagementRetention:90,acquisitionFeasibility:95})}/> : active === "Classroom" ? <ClassroomEditor project={project} /> : active === "Engagement" ? <EngagementEditor project={project} /> : <><div className="editor-card">
             <label>Community name<input value={project.foundation.name} onChange={(event) => setProject({ ...project, foundation: { ...project.foundation, name: event.target.value }, lockedPaths: [...new Set([...project.lockedPaths, "foundation.name"])] })} /></label>
             <label>Community promise<textarea value={project.foundation.promise} onChange={(event) => setProject({ ...project, foundation: { ...project.foundation, promise: event.target.value }, lockedPaths: [...new Set([...project.lockedPaths, "foundation.promise"])] })} /></label>
             <label>Ideal member<textarea value={project.foundation.audience} readOnly /></label>

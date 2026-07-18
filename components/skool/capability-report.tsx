@@ -1,0 +1,4 @@
+"use client";
+import {CheckCircle2,Download,PlugZap,XCircle} from "lucide-react";
+import {desiredCapabilities} from "@/domain/capabilities";
+export function CapabilityReport(){return <section className="capability-report"><header><div><small>SKOOL CONNECTION</small><h2>Publish what the connection proves</h2></div><PlugZap size={22}/></header><p>Until credentials are verified, every setup item remains safely available in your export package.</p><div>{desiredCapabilities.map(item=>{const supported=item.action==="invite-member"||item.action==="unlock-course";return <article key={item.action}>{supported?<CheckCircle2 size={15}/>:<XCircle size={15}/>}<b>{item.label}</b><span>{supported?"Credential check required":"Export required"}</span>{!supported&&<Download size={13}/>}</article>})}</div><footer>No action is sent without a payload preview and confirmation.</footer></section>}
