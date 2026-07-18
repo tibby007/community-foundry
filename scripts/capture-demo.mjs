@@ -13,6 +13,7 @@ await page.screenshot({ path: path.join(outputDir, "community-foundry-landing.pn
 await page.getByLabel("Describe your community idea").fill("I help women over 40 turn their corporate experience into a consulting business.");
 await page.getByRole("button", { name: /build my community/i }).click();
 await page.getByRole("button", { name: /apply suggestion/i }).click();
+await page.getByLabel("Community preview").getByText("The Second Act Consulting Lab", { exact: true }).first().waitFor();
 await page.screenshot({ path: path.join(outputDir, "community-foundry-studio.png"), fullPage: true });
 await page.getByRole("button", { name: /07\s*promotion/i }).click();
 await page.getByRole("button", { name: /apply referral campaign/i }).click();
