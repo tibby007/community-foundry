@@ -1,4 +1,4 @@
-import { ArrowRight, Blocks, Sparkles } from "lucide-react";
+import { EntryExperience } from "@/components/entry/entry-experience";
 
 export default function Home() {
   return (
@@ -12,34 +12,7 @@ export default function Home() {
       </nav>
 
       <section className="hero" id="top">
-        <div className="hero-copy">
-          <p className="eyebrow"><Sparkles size={15} aria-hidden="true" /> Community to business, in minutes</p>
-          <h1>Turn what you know into a community people want to join.</h1>
-          <p className="lede">
-            Build the offer, classroom, conversations, brand, and launch plan in one AI-guided studio.
-          </p>
-
-          <div className="idea-card">
-            <label htmlFor="community-idea">What could you teach, lead, or help people achieve?</label>
-            <div className="idea-row">
-              <input
-                id="community-idea"
-                name="community-idea"
-                placeholder="I help women over 40 launch consulting businesses..."
-              />
-              <button type="button">Build my community <ArrowRight size={17} aria-hidden="true" /></button>
-            </div>
-            <p>No polished idea required. The strategist will help shape it.</p>
-          </div>
-
-          <div className="divider"><span>or</span></div>
-
-          <button className="template-button" type="button">
-            <span className="template-icon"><Blocks size={20} aria-hidden="true" /></span>
-            <span><strong>Start with a proven template</strong><small>Explore 10 market-tested community models</small></span>
-            <ArrowRight size={18} aria-hidden="true" />
-          </button>
-        </div>
+        <EntryExperience />
 
         <div className="hero-visual" aria-label="Community Studio preview">
           <div className="glow glow-one" />
