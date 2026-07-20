@@ -204,6 +204,25 @@ function titleCaseIdea(value: string) {
 
 function parseScratchIdea(ownerInput: string) {
   const idea = ownerInput.trim().replace(/[.!?]+$/, "");
+  const communityRequest = idea.match(/^(?:i\s+(?:want|need|would\s+like)\s+to\s+)?(?:create|build|start|launch)\s+(?:(?:a|an|the)\s+)?(?:skool\s+)?(?:group|community)\s+(?:for|around|about)\s+(?:(?:my|our)\s+)?(.+)$/i);
+  if (communityRequest) {
+    const subject = communityRequest[1].trim().replace(/\bclu\b/i, "club");
+    const coreTopic = subject.replace(/\s+(?:club|group|community)$/i, "").trim() || subject;
+    const clubName = /(?:club|group|community)$/i.test(subject)
+      ? titleCaseIdea(subject)
+      : `${titleCaseIdea(subject)} Community`;
+    const audience = /club$/i.test(subject)
+      ? `${titleCaseIdea(subject)} members`
+      : `People interested in ${coreTopic.toLowerCase()}`;
+    return {
+      audience,
+      outcome: `connect around ${coreTopic.toLowerCase()}, exchange practical ideas, and make progress together`,
+      topic: titleCaseIdea(coreTopic),
+      verb: "connect",
+      communityMode: true,
+      clubName,
+    };
+  }
   const withoutLead = idea.replace(/^i\s+(?:help|teach|show|guide)\s+/i, "");
   const actionMatch = withoutLead.match(/\b(build(?:ing)?|creat(?:e|ing)|launch(?:ing)?|start(?:ing)?|learn(?:ing)?|master(?:ing)?|grow(?:ing)?|develop(?:ing)?|design(?:ing)?|automat(?:e|ing)|improv(?:e|ing)|becom(?:e|ing)|turn(?:ing)?|scal(?:e|ing)|sell(?:ing)?|find(?:ing)?|land(?:ing)?|writ(?:e|ing))\b/i);
   if (!actionMatch || actionMatch.index === undefined) {
@@ -239,9 +258,13 @@ export function createProjectFromScratch(ownerInput: string): CommunityProject {
     master: "Mastery", grow: "Growth", develop: "Development", design: "Design", improve: "Improvement",
     become: "Transformation", scale: "Growth", sell: "Sales", find: "Discovery", land: "Success", write: "Writing",
   };
-  const name = `${idea.topic} ${namingSuffix[idea.verb] ?? "Results"} Lab`.replace(/\s+/g, " ");
-  const transformation = `Go from unsure where to begin to confidently ${idea.outcome} with a working result to share`;
-  const pain = `${idea.audience} want to ${idea.outcome}, but they lack a clear ${idea.topic.toLowerCase()} roadmap, hands-on feedback, and consistent support.`;
+  const name = idea.communityMode ? idea.clubName : `${idea.topic} ${namingSuffix[idea.verb] ?? "Results"} Lab`.replace(/\s+/g, " ");
+  const transformation = idea.communityMode
+    ? `Go from scattered conversations to an active ${idea.topic.toLowerCase()} community where members learn, participate, and share progress together`
+    : `Go from unsure where to begin to confidently ${idea.outcome} with a working result to share`;
+  const pain = idea.communityMode
+    ? `${idea.audience} need one organized place to ask questions, share projects, and stay connected between activities.`
+    : `${idea.audience} want to ${idea.outcome}, but they lack a clear ${idea.topic.toLowerCase()} roadmap, hands-on feedback, and consistent support.`;
   const customTemplate = buildTemplate({
     id: "custom",
     title: name,
@@ -250,7 +273,14 @@ export function createProjectFromScratch(ownerInput: string): CommunityProject {
     outcome: transformation,
     model: "paid",
     price: 49,
-    modules: [
+    modules: idea.communityMode ? [
+      "Welcome and Member Goals",
+      `${idea.topic} Foundations`,
+      `Plan a ${idea.topic} Project`,
+      "Share Questions and Ideas",
+      "Progress Check-In",
+      "Member Showcase",
+    ] : [
       "Define the Outcome",
       `${idea.topic} Fundamentals`,
       `Plan the ${idea.topic} System`,
@@ -258,7 +288,9 @@ export function createProjectFromScratch(ownerInput: string): CommunityProject {
       "Test and Improve",
       "Launch and Measure",
     ],
-    categories: ["Start Here", `${idea.topic} Strategy`, "Build Accountability", "Member Wins"],
+    categories: idea.communityMode
+      ? ["Start Here", `${idea.topic} Discussion`, "Projects and Progress", "Member Showcase"]
+      : ["Start Here", `${idea.topic} Strategy`, "Build Accountability", "Member Wins"],
     channels: ["Educational content and live demonstrations", "Trusted community partnerships"],
     direction: brandDirection,
   });
@@ -274,12 +306,16 @@ export function createProjectFromScratch(ownerInput: string): CommunityProject {
     foundation: {
       ...content.foundation,
       name,
-      alternatives: [`${idea.topic} Collective`, `${idea.topic} Accelerator`],
-      promise: `Help ${idea.audience} ${idea.outcome} through guided projects, practical feedback, and peer accountability.`,
+      alternatives: idea.communityMode ? [`${idea.topic} Circle`, `${idea.topic} Collective`] : [`${idea.topic} Collective`, `${idea.topic} Accelerator`],
+      promise: idea.communityMode
+        ? `Bring ${idea.audience.toLowerCase()} together to share practical ${idea.topic.toLowerCase()} ideas, learn from one another, and make visible progress.`
+        : `Help ${idea.audience} ${idea.outcome} through guided projects, practical feedback, and peer accountability.`,
       audience: idea.audience,
       pain,
       transformation,
-      differentiator: `A build-first community where members learn by doing and leave with visible progress toward their own ${idea.topic.toLowerCase()} outcome.`,
+      differentiator: idea.communityMode
+        ? `A welcoming, participation-first community built around useful discussion, shared projects, and visible member progress in ${idea.topic.toLowerCase()}.`
+        : `A build-first community where members learn by doing and leave with visible progress toward their own ${idea.topic.toLowerCase()} outcome.`,
       membershipCriteria: `For ${idea.audience.toLowerCase()} who are ready to ${idea.outcome} and participate in practical build sessions.`,
       description: `${name} helps ${idea.audience.toLowerCase()} ${idea.outcome} with a focused roadmap, practical projects, and peer support.`,
     },
@@ -307,5 +343,23 @@ export function createProjectFromScratch(ownerInput: string): CommunityProject {
     citations: [],
     lockedPaths: [],
     history: [],
+  };
+}
+
+export function migrateMisparsedScratchProject(project: CommunityProject): CommunityProject {
+  const hasBrokenGeneratedName = /^(?:A|An)\s+(?:Skool\s+)?(?:Group|Community)\s+For\b.*(?:Creator|Builder|Results)\s+Lab$/i.test(project.foundation.name);
+  const hasBrokenAudience = /^i\s+(?:want|need|would\s+like)\s+to$/i.test(project.foundation.audience);
+  if (project.templateId !== "custom" || !hasBrokenGeneratedName || !hasBrokenAudience || project.lockedPaths.length > 0) return project;
+
+  const originalIdea = project.foundation.promise.match(/^Help\s+(.+?)\s+through guided projects/i)?.[1];
+  if (!originalIdea) return project;
+
+  const repaired = createProjectFromScratch(originalIdea);
+  return {
+    ...repaired,
+    id: project.id,
+    createdAt: project.createdAt,
+    updatedAt: new Date().toISOString(),
+    history: project.history,
   };
 }

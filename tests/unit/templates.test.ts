@@ -45,6 +45,32 @@ describe("template library", () => {
     expect(project.foundation.transformation).toMatch(/AI agent/i);
   });
 
+  it("treats a request to create a Skool group as platform intent, not the community topic", () => {
+    const project = createProjectFromScratch("I want to create a Skool group for my gardening clu");
+    const foundation = JSON.stringify(project.foundation);
+    const projectText = JSON.stringify(project);
+
+    expect(project.foundation.name).toMatch(/gardening club/i);
+    expect(project.foundation.audience).toMatch(/gardening/i);
+    expect(project.foundation.audience).not.toMatch(/^i want to$/i);
+    expect(project.foundation.promise).toMatch(/gardening/i);
+    expect(foundation).not.toMatch(/create a skool group|skool group for creator/i);
+    expect(project.categories.map((category) => category.name).join(" ")).toMatch(/gardening/i);
+    expect(project.classroom.modules.map((module) => module.title).join(" ")).toMatch(/gardening/i);
+    expect(project.promotion.leadMagnet).toMatch(/gardening/i);
+    expect(projectText).not.toMatch(/i want to want to|a skool group for creator/i);
+  });
+
+  it("generalizes club-community requests beyond gardening", () => {
+    const project = createProjectFromScratch("Create a community for our neighborhood photography club");
+    const projectText = JSON.stringify(project);
+
+    expect(project.foundation.name).toMatch(/neighborhood photography club/i);
+    expect(project.foundation.audience).toMatch(/photography/i);
+    expect(projectText).toMatch(/photography/i);
+    expect(projectText).not.toMatch(/gardening|skool group for creator/i);
+  });
+
   it("recommends a visual direction from the scratch topic", () => {
     const garden = createProjectFromScratch("I help women over 40 create beautiful gardens");
     const technology = createProjectFromScratch("I help women over 50 build AI agents");

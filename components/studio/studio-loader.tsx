@@ -5,6 +5,7 @@ import type { CommunityProject } from "@/domain/project-schema";
 import { CommunityProjectSchema } from "@/domain/project-schema";
 import { StudioShell } from "@/components/studio/studio-shell";
 import { migrateLegacyBrand } from "@/lib/brand-system";
+import { migrateMisparsedScratchProject } from "@/data/templates";
 
 export function StudioLoader({ projectId, fallbackProject }: { projectId: string; fallbackProject: CommunityProject }) {
   const [project, setProject] = useState<CommunityProject | null>(null);
@@ -14,7 +15,7 @@ export function StudioLoader({ projectId, fallbackProject }: { projectId: string
       let parsed = null;
       try { parsed = raw ? CommunityProjectSchema.safeParse(JSON.parse(raw)) : null; }
       catch { parsed = null; }
-      setProject(migrateLegacyBrand(parsed?.success ? parsed.data : fallbackProject));
+      setProject(migrateLegacyBrand(migrateMisparsedScratchProject(parsed?.success ? parsed.data : fallbackProject)));
     });
   }, [projectId, fallbackProject]);
   if (!project) return <main className="studio-loading" role="status">Preparing your Community Studio…</main>;
