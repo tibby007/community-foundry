@@ -20,7 +20,7 @@ export function ClassroomEditor({ project, onChange }: { project: CommunityProje
     const lesson = project.classroom.modules[mi].lessons[li];
     setLoading(`lesson-${lesson.id}`);
     try {
-      const response = await fetch("/api/lessons", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ communityName: project.foundation.name, audience: project.foundation.audience, transformation: project.foundation.transformation, moduleTitle: project.classroom.modules[mi].title, lessonTitle: lesson.title }) });
+      const response = await fetch("/api/lessons", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ communityName: project.foundation.name, audience: project.foundation.audience, transformation: project.foundation.transformation, moduleTitle: project.classroom.modules[mi].title, lessonTitle: lesson.title, brandDirection: project.brand.direction, palette: project.brand.palette }) });
       if (!response.ok) throw new Error();
       const result = await response.json();
       changeLesson(mi, li, result.content, `classroom.modules.${mi}.lessons.${li}`);

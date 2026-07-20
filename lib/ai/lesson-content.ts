@@ -9,6 +9,8 @@ export const LessonContentRequestSchema = z.object({
   transformation: z.string().min(4).max(500),
   moduleTitle: z.string().min(2).max(160),
   lessonTitle: z.string().min(2).max(160),
+  brandDirection: z.enum(["authority", "energetic", "premium", "warm", "bold"]).optional(),
+  palette: z.array(z.string().regex(/^#[0-9A-Fa-f]{6}$/)).length(4).optional(),
 });
 
 export const LessonContentSchema = z.object({
@@ -31,6 +33,8 @@ export type LessonContent = z.infer<typeof LessonContentSchema>;
 export function buildFallbackLessonContent(request: LessonContentRequest): LessonContent {
   const topic = request.moduleTitle;
   const audience = request.audience;
+  const brandDirection = request.brandDirection ?? "authority";
+  const palette = request.palette ?? ["#11263D", "#2E5B88", "#D29B45", "#F4F1EA"];
   const manuscript = [
     `Welcome to ${request.lessonTitle}, part of ${request.communityName}. This lesson is designed for ${audience}. By the end, you will understand the purpose of ${topic}, recognize the decisions that matter most, and complete a practical first version you can improve.`,
     `Start with the outcome. ${request.transformation}. Do not begin with tools or features. Write down the person, problem, input, action, and finished result. This keeps the work focused on a useful transformation instead of an impressive but unnecessary build.`,
@@ -54,8 +58,8 @@ export function buildFallbackLessonContent(request: LessonContentRequest): Lesso
     ],
     actionStep: `Complete one realistic test of ${topic}, document the output, and share one specific question with the community.`,
     videoScript: `Welcome to ${request.lessonTitle}. In this lesson, we are going to make ${topic} practical for ${audience}. First, define the exact result you want to create. Next, map the simplest path from the current problem to that result. Then build a small first version and test it with one realistic example. Do not chase perfection. Your first version exists to teach you what to improve. Review the result for accuracy, clarity, safety, and usefulness. Complete the worksheet, run your test, and share what happened with the community. Your next move is simple: create something concrete enough to evaluate and improve.`,
-    imagePrompt: `A polished editorial educational diagram for ${request.lessonTitle} in ${request.communityName}, showing a clear path from problem to plan to build to test to result, premium ivory, deep charcoal, electric violet, and mint palette, landscape, no logos, minimal readable text.`,
-    videoPrompt: `A polished cinematic educational intro for ${request.lessonTitle}, visually showing ${topic} moving from an unclear idea to a mapped plan, a working build, a test, and a confident result, premium modern technology aesthetic, diverse adult learners, landscape, synced ambient audio, no logos, no on-screen text.`,
+    imagePrompt: `A polished editorial educational diagram for ${request.lessonTitle} in ${request.communityName}, showing a clear path from problem to plan to build to test to result, ${brandDirection} visual direction using ${palette.join(", ")}, landscape, no logos, minimal readable text.`,
+    videoPrompt: `A polished cinematic educational intro for ${request.lessonTitle}, visually showing ${topic} moving from an unclear idea to a mapped plan, a working build, a test, and a confident result, ${brandDirection} visual direction using ${palette.join(", ")}, diverse adult learners, landscape, synced ambient audio, no logos, no on-screen text.`,
   });
 }
 
@@ -64,7 +68,7 @@ export async function generateLessonContent(request: LessonContentRequest) {
   try {
     const response = await settleWithin(getOpenAIClient().responses.parse({
       model: process.env.OPENAI_MODEL ?? "gpt-5.6-sol",
-      input: `Create a complete, practical lesson production pack. Avoid generic filler. Audience: ${request.audience}. Community: ${request.communityName}. Transformation: ${request.transformation}. Module: ${request.moduleTitle}. Lesson: ${request.lessonTitle}. The manuscript must be ready to teach, the video script ready to narrate, and the media prompts visually specific.`,
+      input: `Create a complete, practical lesson production pack. Avoid generic filler. Audience: ${request.audience}. Community: ${request.communityName}. Transformation: ${request.transformation}. Module: ${request.moduleTitle}. Lesson: ${request.lessonTitle}. Brand direction: ${request.brandDirection ?? "authority"}. Required brand palette: ${(request.palette ?? ["#11263D", "#2E5B88", "#D29B45", "#F4F1EA"]).join(", ")}. The manuscript must be ready to teach, the video script ready to narrate, and both media prompts must explicitly preserve this brand direction and palette without substituting colors.`,
       text: { format: zodTextFormat(LessonContentSchema, "lesson_production_pack") },
     }, { timeout: 12_000 }), 13_000);
     if (!response.output_parsed) throw new Error("No structured lesson returned");

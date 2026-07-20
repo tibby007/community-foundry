@@ -26,4 +26,19 @@ describe("lesson production", () => {
     expect(VideoCreateRequestSchema.safeParse({ prompt: "A polished lesson intro about AI agent fundamentals", seconds: "8" }).success).toBe(true);
     expect(VideoCreateRequestSchema.safeParse({ prompt: "short", seconds: "60" }).success).toBe(false);
   });
+
+  it("uses the community brand in lesson media prompts without purple leakage", () => {
+    const content = buildFallbackLessonContent(LessonContentRequestSchema.parse({
+      communityName: "Beautiful Gardens Creator Lab",
+      audience: "women over 40",
+      transformation: "Create a beautiful garden",
+      moduleTitle: "Garden Foundations",
+      lessonTitle: "Plan Your First Garden Bed",
+      brandDirection: "warm",
+      palette: ["#2F3B2E", "#A65232", "#D8A65A", "#FAF3E7"],
+    }));
+    expect(content.imagePrompt).toContain("#A65232");
+    expect(content.videoPrompt).toMatch(/warm/i);
+    expect(`${content.imagePrompt} ${content.videoPrompt}`).not.toMatch(/violet|purple|7657FF/i);
+  });
 });
