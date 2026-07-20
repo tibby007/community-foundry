@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, ChevronRight, Sparkles, Undo2 } from "lucide-react";
 import type { CommunityProject } from "@/domain/project-schema";
-import { applyProposal, undoLastChange, type ProjectProposal, type ProposalSection } from "@/domain/proposals";
+import { applyManualChange, applyProposal, undoLastChange, type ProjectProposal, type ProposalSection } from "@/domain/proposals";
 import { ClassroomEditor } from "@/components/studio/classroom-editor";
 import { EngagementEditor } from "@/components/studio/engagement-editor";
 import { LaunchScore } from "@/components/score/launch-score";
@@ -41,6 +41,7 @@ export function StudioShell({ initialProject, storageKey }: { initialProject: Co
   const [pendingProposal, setPendingProposal] = useState<ProjectProposal|null>(null);
   const [generationStatus, setGenerationStatus] = useState<"idle"|"loading"|"error">("idle");
   const [generationInstruction, setGenerationInstruction] = useState("");
+  const [undoNotice, setUndoNotice] = useState("");
   const tier = project.offer.tiers[0];
   const activeIndex = steps.indexOf(active);
   const nextStep = steps[activeIndex + 1];
@@ -79,7 +80,13 @@ export function StudioShell({ initialProject, storageKey }: { initialProject: Co
   }
 
   function acceptManualEdit(next: CommunityProject, path: string) {
-    setProject({ ...next, updatedAt: new Date().toISOString(), lockedPaths: [...new Set([...next.lockedPaths, path])] });
+    setProject((current) => applyManualChange(current, next, path));
+    setUndoNotice("");
+  }
+
+  function handleUndo() {
+    setProject((current) => undoLastChange(current));
+    setUndoNotice(project.history.length === 1 ? "Change undone. Nothing to undo yet." : "Last change undone.");
   }
 
   async function regenerateSection() {
@@ -118,12 +125,13 @@ export function StudioShell({ initialProject, storageKey }: { initialProject: Co
         </aside>
 
         <section className="studio-workspace">
-          <div className="workspace-heading"><div><p>STEP {steps.indexOf(active) + 1} OF 8</p><h1>{active}</h1></div><button onClick={() => setProject((value) => undoLastChange(value))}><Undo2 size={15} /> Undo</button></div>
+          <div className="workspace-heading"><div><p>STEP {steps.indexOf(active) + 1} OF 8</p><h1>{active}</h1></div><button onClick={handleUndo} disabled={project.history.length === 0} title={project.history.length ? "Undo the last accepted or manual change" : "Nothing to undo yet"}><Undo2 size={15} /> Undo</button></div>
+          {undoNotice && <p className="undo-notice" role="status">{undoNotice}</p>}
           <p className="workspace-intro">{stageGuidance[active].intro}</p>
 
-          {active === "Launch" ? <><LaunchScore values={scoreValues}/><MarketValidation templateId={project.templateId === "custom" ? "consulting-client-accelerator" : project.templateId}/><ExportCenter project={project}/><CapabilityReport/></> : active === "Brand" ? <BrandStudio project={project} onChange={acceptManualEdit}/> : active === "Promotion" ? <PromotionEditor project={project} values={scoreValues} onChange={acceptManualEdit} onApply={()=>setScoreValues({...scoreValues,transformationClarity:87,willingnessToPay:90,engagementRetention:90,acquisitionFeasibility:95})}/> : active === "Classroom" ? <ClassroomEditor project={project} onChange={acceptManualEdit} /> : active === "Engagement" ? <EngagementEditor project={project} onChange={acceptManualEdit} /> : active === "Offer" ? <OfferEditor project={project} onChange={acceptManualEdit}/> : active === "Community" ? <CommunityEditor project={project} onChange={acceptManualEdit}/> : <><div className="editor-card section-form">
-            <label>Community name<input value={project.foundation.name} onChange={(event) => setProject({ ...project, foundation: { ...project.foundation, name: event.target.value }, lockedPaths: [...new Set([...project.lockedPaths, "foundation.name"])] })} /></label>
-            <label>Community promise<textarea value={project.foundation.promise} onChange={(event) => setProject({ ...project, foundation: { ...project.foundation, promise: event.target.value }, lockedPaths: [...new Set([...project.lockedPaths, "foundation.promise"])] })} /></label>
+          {active === "Launch" ? <><LaunchScore values={scoreValues}/><MarketValidation templateId={project.templateId}/><ExportCenter project={project}/><CapabilityReport/></> : active === "Brand" ? <BrandStudio project={project} onChange={acceptManualEdit}/> : active === "Promotion" ? <PromotionEditor project={project} values={scoreValues} onChange={acceptManualEdit} onApply={()=>setScoreValues({...scoreValues,transformationClarity:87,willingnessToPay:90,engagementRetention:90,acquisitionFeasibility:95})}/> : active === "Classroom" ? <ClassroomEditor project={project} onChange={acceptManualEdit} /> : active === "Engagement" ? <EngagementEditor project={project} onChange={acceptManualEdit} /> : active === "Offer" ? <OfferEditor project={project} onChange={acceptManualEdit}/> : active === "Community" ? <CommunityEditor project={project} onChange={acceptManualEdit}/> : <><div className="editor-card section-form">
+            <label>Community name<input value={project.foundation.name} onChange={(event) => acceptManualEdit({ ...project, foundation: { ...project.foundation, name: event.target.value } }, "foundation.name")} /></label>
+            <label>Community promise<textarea value={project.foundation.promise} onChange={(event) => acceptManualEdit({ ...project, foundation: { ...project.foundation, promise: event.target.value } }, "foundation.promise")} /></label>
             <label>Ideal member<textarea value={project.foundation.audience} onChange={(event)=>acceptManualEdit({...project,foundation:{...project.foundation,audience:event.target.value}},"foundation.audience")} /></label>
             <label>Current pain<textarea value={project.foundation.pain} onChange={(event)=>acceptManualEdit({...project,foundation:{...project.foundation,pain:event.target.value}},"foundation.pain")} /></label>
             <label>Desired transformation<textarea value={project.foundation.transformation} onChange={(event)=>acceptManualEdit({...project,foundation:{...project.foundation,transformation:event.target.value}},"foundation.transformation")} /></label>

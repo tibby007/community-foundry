@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createProjectFromTemplate } from "@/data/templates";
-import { applyProposal, undoLastChange } from "@/domain/proposals";
+import { applyManualChange, applyProposal, undoLastChange } from "@/domain/proposals";
 
 describe("proposal engine", () => {
   it("preserves user-locked fields while applying allowed changes", () => {
@@ -30,6 +30,19 @@ describe("proposal engine", () => {
       changes: { "foundation.name": "The Second Act Consulting Lab" },
     }).project;
 
+    expect(undoLastChange(updated).foundation.name).toBe(project.foundation.name);
+  });
+
+  it("records a manual edit as one undoable change", () => {
+    const project = createProjectFromTemplate("consulting-client-accelerator", "Women over 40");
+    const firstEdit = structuredClone(project);
+    firstEdit.foundation.name = "Beautiful";
+    const afterFirstKeypress = applyManualChange(project, firstEdit, "foundation.name");
+    const finishedEdit = structuredClone(afterFirstKeypress);
+    finishedEdit.foundation.name = "Beautiful Gardens Creator Lab";
+    const updated = applyManualChange(afterFirstKeypress, finishedEdit, "foundation.name");
+
+    expect(updated.history).toHaveLength(1);
     expect(undoLastChange(updated).foundation.name).toBe(project.foundation.name);
   });
 

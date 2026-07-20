@@ -93,3 +93,27 @@ export function undoLastChange(project: CommunityProject): CommunityProject {
   next.updatedAt = new Date().toISOString();
   return next;
 }
+
+export function applyManualChange(project: CommunityProject, editedProject: CommunityProject, path: string): CommunityProject {
+  const next = structuredClone(editedProject);
+  const beforeValue = structuredClone(readPath(project, path));
+  const afterValue = structuredClone(readPath(editedProject, path));
+  const latest = next.history.at(-1);
+  const isSameManualEdit = latest?.section === "manual" && Object.keys(latest.after).length === 1 && path in latest.after;
+
+  if (isSameManualEdit) {
+    latest.after[path] = afterValue;
+    latest.acceptedAt = new Date().toISOString();
+  } else {
+    next.history.push({
+      id: crypto.randomUUID(),
+      acceptedAt: new Date().toISOString(),
+      section: "manual",
+      before: { [path]: beforeValue },
+      after: { [path]: afterValue },
+    });
+  }
+  next.lockedPaths = [...new Set([...next.lockedPaths, path])];
+  next.updatedAt = new Date().toISOString();
+  return next;
+}

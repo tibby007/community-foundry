@@ -53,6 +53,18 @@ test("primary build button creates a custom project from the entered idea", asyn
   await expect(page.getByLabel("Community promise")).toHaveValue(/create beautiful gardens/i);
 });
 
+test("a scratch route never falls back to the consulting template", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("Describe your community idea").fill("I help women over 40 create beautiful gardens");
+  await page.getByRole("button", { name: /build from scratch with ai/i }).click();
+  await expect(page.getByLabel("Community name")).toHaveValue(/Beautiful Gardens/i);
+  const routeId = page.url().split("/").pop();
+  await page.evaluate((id) => window.localStorage.setItem(`community-foundry.project.${id}`, "invalid saved data"), routeId);
+  await page.reload();
+
+  await expect(page.getByLabel("Community name")).not.toHaveValue(/Consulting/i);
+});
+
 test("all strategy stages expose editable controls and contextual previews", async ({ page }) => {
   await page.goto("/build/demo");
   await page.getByRole("button", { name: /02\s*offer/i }).click();

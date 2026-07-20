@@ -25,4 +25,19 @@ describe("Studio foundation", () => {
     expect(screen.getByRole("heading", { name: "Offer" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /continue to community/i })).toBeInTheDocument();
   });
+
+  it("undoes a manual edit and explains when nothing remains to undo", async () => {
+    const user = userEvent.setup();
+    render(<StudioShell initialProject={createProjectFromScratch("I help women over 40 create beautiful gardens")} />);
+    const name = screen.getByLabelText("Community name");
+    const originalName = (name as HTMLInputElement).value;
+
+    await user.clear(name);
+    await user.type(name, "Garden Makers Club");
+    await user.click(screen.getByRole("button", { name: /^undo$/i }));
+
+    expect(name).toHaveValue(originalName);
+    expect(screen.getByRole("button", { name: /^undo$/i })).toBeDisabled();
+    expect(screen.getByText(/nothing to undo yet/i)).toBeInTheDocument();
+  });
 });

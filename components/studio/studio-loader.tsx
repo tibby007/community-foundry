@@ -10,7 +10,9 @@ export function StudioLoader({ projectId, fallbackProject }: { projectId: string
   useEffect(() => {
     Promise.resolve().then(() => {
       const raw = window.localStorage.getItem(`community-foundry.project.${projectId}`);
-      const parsed = raw ? CommunityProjectSchema.safeParse(JSON.parse(raw)) : null;
+      let parsed = null;
+      try { parsed = raw ? CommunityProjectSchema.safeParse(JSON.parse(raw)) : null; }
+      catch { parsed = null; }
       setProject(parsed?.success ? parsed.data : fallbackProject);
     });
   }, [projectId, fallbackProject]);
