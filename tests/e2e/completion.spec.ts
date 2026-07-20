@@ -42,6 +42,17 @@ test("build-from-scratch creates an editable autosaved project", async ({ page }
   await expect(page.getByLabel("Community name")).toHaveValue("The Women 50+ AI Agent Lab");
 });
 
+test("primary build button creates a custom project from the entered idea", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("Describe your community idea").fill("I help women over 40 create beautiful gardens");
+  await page.getByRole("button", { name: /build my community/i }).click();
+
+  await expect(page.getByLabel("Community name")).toHaveValue(/Beautiful Gardens/i);
+  await expect(page.getByLabel("Community name")).not.toHaveValue(/Consulting Client Accelerator/i);
+  await expect(page.getByLabel("Ideal member")).toHaveValue(/women over 40/i);
+  await expect(page.getByLabel("Community promise")).toHaveValue(/create beautiful gardens/i);
+});
+
 test("all strategy stages expose editable controls and contextual previews", async ({ page }) => {
   await page.goto("/build/demo");
   await page.getByRole("button", { name: /02\s*offer/i }).click();

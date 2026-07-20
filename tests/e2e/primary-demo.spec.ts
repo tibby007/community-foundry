@@ -5,7 +5,8 @@ test("builds, improves, and exports the Second Act community", async ({ page }) 
   await page
     .getByLabel("Describe your community idea")
     .fill("I help women over 40 turn their corporate experience into a consulting business.");
-  await page.getByRole("button", { name: /build my community/i }).click();
+  await page.getByRole("button", { name: /start with a proven template/i }).click();
+  await page.getByRole("button", { name: /consulting client accelerator/i }).click();
   await expect(page.getByRole("heading", { name: "Foundation" })).toBeVisible();
   await page.getByRole("button", { name: /apply suggestion/i }).click();
   await expect(page.getByLabel("Community preview")).toContainText("The Second Act Consulting Lab");
