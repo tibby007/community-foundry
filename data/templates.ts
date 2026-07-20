@@ -1,4 +1,5 @@
 import type { CommunityProject, CommunityTemplate } from "@/domain/project-schema";
+import { getBrandTheme, recommendBrandDirection } from "@/lib/brand-system";
 
 type TemplateSeed = {
   id: string;
@@ -147,8 +148,7 @@ const buildTemplate = (seed: TemplateSeed): CommunityTemplate => ({
   },
   brand: {
     direction: seed.direction,
-    palette: ["#17151F", "#7657FF", "#A6F1CE", "#FFFDF8"],
-    typography: "Editorial serif headlines with a clean, high-legibility sans serif interface.",
+    ...getBrandTheme(seed.direction),
     iconUrl: null,
     coverUrl: null,
     promotionUrl: null,
@@ -233,6 +233,7 @@ function parseScratchIdea(ownerInput: string) {
 
 export function createProjectFromScratch(ownerInput: string): CommunityProject {
   const idea = parseScratchIdea(ownerInput);
+  const brandDirection = recommendBrandDirection(ownerInput);
   const namingSuffix: Record<string, string> = {
     build: "Builder", automate: "Automation", create: "Creator", launch: "Launch", learn: "Learning",
     master: "Mastery", grow: "Growth", develop: "Development", design: "Design", improve: "Improvement",
@@ -259,7 +260,7 @@ export function createProjectFromScratch(ownerInput: string): CommunityProject {
     ],
     categories: ["Start Here", `${idea.topic} Strategy`, "Build Accountability", "Member Wins"],
     channels: ["Educational content and live demonstrations", "Trusted community partnerships"],
-    direction: "premium",
+    direction: brandDirection,
   });
   const { id: templateId, ...content } = customTemplate;
   const now = new Date().toISOString();

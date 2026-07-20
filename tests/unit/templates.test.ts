@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { COMMUNITY_TEMPLATES, createProjectFromScratch, createProjectFromTemplate } from "@/data/templates";
 import { CommunityProjectSchema } from "@/domain/project-schema";
+import { createBrandAssetDataUrl } from "@/lib/brand-system";
 
 describe("template library", () => {
   it("contains ten unique, complete templates", () => {
@@ -44,6 +45,14 @@ describe("template library", () => {
     expect(project.foundation.transformation).toMatch(/AI agent/i);
   });
 
+  it("recommends a visual direction from the scratch topic", () => {
+    const garden = createProjectFromScratch("I help women over 40 create beautiful gardens");
+    const technology = createProjectFromScratch("I help women over 50 build AI agents");
+    expect(garden.brand.direction).toBe("warm");
+    expect(technology.brand.direction).not.toBe(garden.brand.direction);
+    expect(technology.brand.palette).not.toEqual(garden.brand.palette);
+  });
+
   it("personalizes unrelated scratch ideas without leaking the AI-agent example", () => {
     const project = createProjectFromScratch("I help local business owners automate client follow-up");
 
@@ -71,5 +80,26 @@ describe("template library", () => {
 
     expect(finance?.disclaimers.join(" ")).toMatch(/education/i);
     expect(fitness?.disclaimers.join(" ")).toMatch(/medical/i);
+  });
+
+  it("gives visual directions distinct palettes instead of one purple default", () => {
+    const palettes = COMMUNITY_TEMPLATES.map((template) => template.brand.palette.join(","));
+    expect(new Set(palettes).size).toBeGreaterThanOrEqual(5);
+    const warm = COMMUNITY_TEMPLATES.find((template) => template.brand.direction === "warm");
+    expect(warm?.brand.palette.join(" ")).not.toMatch(/7657FF/i);
+  });
+
+  it("wraps long community names in generated covers instead of clipping them", () => {
+    const url = createBrandAssetDataUrl({
+      assetType: "cover",
+      communityName: "Beautiful Gardens Creator Lab for Women Over Forty",
+      promise: "Create a beautiful garden with guided projects and practical feedback.",
+      palette: ["#2F3B2E", "#A65232", "#D8A65A", "#FAF3E7"],
+    });
+    const svg = decodeURIComponent(url.split(",")[1]);
+    expect(svg).toContain("<tspan");
+    expect(svg).toContain("Beautiful Gardens");
+    expect(svg).toContain("Creator");
+    expect(svg).toContain("Lab");
   });
 });

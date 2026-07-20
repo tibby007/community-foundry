@@ -87,7 +87,7 @@ test("AI and image fallback preserve a complete credential-free demo", async ({ 
   await page.getByRole("button", { name: /apply regenerated suggestion/i }).click();
   await page.getByRole("button", { name: /06\s*brand/i }).click();
   await page.getByRole("button", { name: /generate variation for community icon/i }).click();
-  await expect(page.getByText("Demo-safe generated fallback").first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText("Custom fallback").first()).toBeVisible({ timeout: 30_000 });
 });
 
 test("preview supports mobile mode, keyboard navigation, and reduced motion", async ({ page }) => {

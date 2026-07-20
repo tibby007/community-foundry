@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { CommunityProject } from "@/domain/project-schema";
 import { CommunityProjectSchema } from "@/domain/project-schema";
 import { StudioShell } from "@/components/studio/studio-shell";
+import { migrateLegacyBrand } from "@/lib/brand-system";
 
 export function StudioLoader({ projectId, fallbackProject }: { projectId: string; fallbackProject: CommunityProject }) {
   const [project, setProject] = useState<CommunityProject | null>(null);
@@ -13,7 +14,7 @@ export function StudioLoader({ projectId, fallbackProject }: { projectId: string
       let parsed = null;
       try { parsed = raw ? CommunityProjectSchema.safeParse(JSON.parse(raw)) : null; }
       catch { parsed = null; }
-      setProject(parsed?.success ? parsed.data : fallbackProject);
+      setProject(migrateLegacyBrand(parsed?.success ? parsed.data : fallbackProject));
     });
   }, [projectId, fallbackProject]);
   if (!project) return <main className="studio-loading" role="status">Preparing your Community Studio…</main>;

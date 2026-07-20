@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, ChevronRight, Sparkles, Undo2 } from "lucide-react";
 import type { CommunityProject } from "@/domain/project-schema";
@@ -45,6 +46,7 @@ export function StudioShell({ initialProject, storageKey }: { initialProject: Co
   const tier = project.offer.tiers[0];
   const activeIndex = steps.indexOf(active);
   const nextStep = steps[activeIndex + 1];
+  const brandStyle = { "--brand-ink": project.brand.palette[0], "--brand-primary": project.brand.palette[1], "--brand-accent": project.brand.palette[2], "--brand-surface": project.brand.palette[3] } as CSSProperties;
 
   const categoryPreview = useMemo(() => project.categories.slice(0, 4), [project.categories]);
 
@@ -89,6 +91,12 @@ export function StudioShell({ initialProject, storageKey }: { initialProject: Co
     setUndoNotice(project.history.length === 1 ? "Change undone. Nothing to undo yet." : "Last change undone.");
   }
 
+  function applyReferralCampaign() {
+    const referralCampaign = `Founding member referral: invite one qualified peer who wants to ${project.foundation.transformation.toLowerCase()}. When they join, both members receive a bonus implementation clinic.`;
+    acceptManualEdit({ ...project, promotion: { ...project.promotion, referralCampaign } }, "promotion");
+    setScoreValues({ ...scoreValues, transformationClarity: 87, willingnessToPay: 90, engagementRetention: 90, acquisitionFeasibility: 95 });
+  }
+
   async function regenerateSection() {
     if (["Brand","Launch"].includes(active)) return;
     setGenerationStatus("loading");
@@ -105,7 +113,7 @@ export function StudioShell({ initialProject, storageKey }: { initialProject: Co
   }
 
   return (
-    <main className="studio-app">
+    <main className="studio-app" style={brandStyle}>
       <header className="studio-app-header">
         <Link href="/" className="studio-brand"><span>CF</span> Community Foundry</Link>
         <div className="project-name"><small>PROJECT</small><strong>{project.foundation.name}</strong></div>
@@ -129,7 +137,7 @@ export function StudioShell({ initialProject, storageKey }: { initialProject: Co
           {undoNotice && <p className="undo-notice" role="status">{undoNotice}</p>}
           <p className="workspace-intro">{stageGuidance[active].intro}</p>
 
-          {active === "Launch" ? <><LaunchScore values={scoreValues}/><MarketValidation templateId={project.templateId}/><ExportCenter project={project}/><CapabilityReport/></> : active === "Brand" ? <BrandStudio project={project} onChange={acceptManualEdit}/> : active === "Promotion" ? <PromotionEditor project={project} values={scoreValues} onChange={acceptManualEdit} onApply={()=>setScoreValues({...scoreValues,transformationClarity:87,willingnessToPay:90,engagementRetention:90,acquisitionFeasibility:95})}/> : active === "Classroom" ? <ClassroomEditor project={project} onChange={acceptManualEdit} /> : active === "Engagement" ? <EngagementEditor project={project} onChange={acceptManualEdit} /> : active === "Offer" ? <OfferEditor project={project} onChange={acceptManualEdit}/> : active === "Community" ? <CommunityEditor project={project} onChange={acceptManualEdit}/> : <><div className="editor-card section-form">
+          {active === "Launch" ? <><LaunchScore values={scoreValues}/><MarketValidation templateId={project.templateId}/><ExportCenter project={project}/><CapabilityReport/></> : active === "Brand" ? <BrandStudio project={project} onChange={acceptManualEdit}/> : active === "Promotion" ? <PromotionEditor project={project} values={scoreValues} onChange={acceptManualEdit} onApply={applyReferralCampaign}/> : active === "Classroom" ? <ClassroomEditor project={project} onChange={acceptManualEdit} /> : active === "Engagement" ? <EngagementEditor project={project} onChange={acceptManualEdit} /> : active === "Offer" ? <OfferEditor project={project} onChange={acceptManualEdit}/> : active === "Community" ? <CommunityEditor project={project} onChange={acceptManualEdit}/> : <><div className="editor-card section-form">
             <label>Community name<input value={project.foundation.name} onChange={(event) => acceptManualEdit({ ...project, foundation: { ...project.foundation, name: event.target.value } }, "foundation.name")} /></label>
             <label>Community promise<textarea value={project.foundation.promise} onChange={(event) => acceptManualEdit({ ...project, foundation: { ...project.foundation, promise: event.target.value } }, "foundation.promise")} /></label>
             <label>Ideal member<textarea value={project.foundation.audience} onChange={(event)=>acceptManualEdit({...project,foundation:{...project.foundation,audience:event.target.value}},"foundation.audience")} /></label>
@@ -153,8 +161,8 @@ export function StudioShell({ initialProject, storageKey }: { initialProject: Co
         <section className="studio-preview-panel">
           <div className="preview-header"><span>LIVE PREVIEW</span><div><button className={previewMode==="desktop"?"active":""} aria-pressed={previewMode==="desktop"} onClick={()=>setPreviewMode("desktop")}>Desktop</button><button className={previewMode==="mobile"?"active":""} aria-pressed={previewMode==="mobile"} onClick={()=>setPreviewMode("mobile")}>Mobile</button></div></div>
           <div className={previewMode==="mobile"?"community-live-preview mobile-preview":"community-live-preview"} aria-label="Community preview">
-            <div className="preview-cover"><small>WELCOME TO</small><strong>{project.foundation.name}</strong></div>
-            <div className="preview-community-title"><div>{project.foundation.name.split(" ").map((word) => word[0]).slice(0, 2).join("")}</div><section><strong>{project.foundation.name}</strong><p>{project.foundation.promise}</p></section></div>
+            <div className="preview-cover" style={{ backgroundImage: project.brand.coverUrl ? `linear-gradient(90deg, color-mix(in srgb, ${project.brand.palette[0]} 76%, transparent), color-mix(in srgb, ${project.brand.palette[1]} 38%, transparent)), url("${project.brand.coverUrl}")` : `linear-gradient(135deg, ${project.brand.palette[1]}, ${project.brand.palette[0]})` }}><small>WELCOME TO</small><strong>{project.foundation.name}</strong></div>
+            <div className="preview-community-title"><div style={{ background: project.brand.palette[1] }}>{project.foundation.name.split(" ").map((word) => word[0]).slice(0, 2).join("")}</div><section><strong>{project.foundation.name}</strong><p>{project.foundation.promise}</p></section></div>
             <nav><b>{active==="Offer"?"Membership":active==="Classroom"?"Classroom":"Community"}</b><span>Classroom</span><span>Calendar</span><span>Members</span></nav>
             {active==="Offer"?<div className="offer-preview"><small>FOUNDING MEMBER</small><strong>${tier.monthlyPrice}<span>/month</span></strong><p>{project.offer.foundingOffer}</p>{tier.benefits.map(benefit=><div key={benefit}><Check size={13}/>{benefit}</div>)}</div>:active==="Classroom"?<div className="classroom-preview">{project.classroom.modules.map((module,index)=><div key={module.id}><span>{index+1}</span><section><b>{module.title}</b><small>{module.lessons.length} lessons · {module.milestone}</small></section></div>)}</div>:active==="Promotion"?<div className="launch-preview"><small>FOUNDING DOORS ARE OPEN</small><strong>{project.promotion.leadMagnet}</strong><p>{project.promotion.referralCampaign}</p></div>:<div className="category-grid">{categoryPreview.map((category) => <div key={category.id}><span>{category.emoji}</span><section><b>{category.name}</b><small>{category.description}</small></section><ChevronRight size={14} /></div>)}</div>}
           </div>
@@ -167,7 +175,7 @@ export function StudioShell({ initialProject, storageKey }: { initialProject: Co
             {generationStatus==="error"&&<p role="alert">The recommendation timed out. Your project is unchanged. <button onClick={regenerateSection}>Retry</button></p>}
             {pendingProposal&&<p>A validated recommendation is ready. Your manual edits remain protected.</p>}
             {!(["Brand","Launch"] as StudioStep[]).includes(active) && <label className="coach-instruction">Tell AI what to improve in this section<input value={generationInstruction} onChange={(event)=>setGenerationInstruction(event.target.value)} placeholder={`Example: Make the ${active.toLowerCase()} more specific`}/></label>}
-            <div className="coach-actions">{(pendingProposal||active==="Foundation")&&<button onClick={pendingProposal?()=>{setProject(applyProposal(project,pendingProposal).project);setPendingProposal(null);setApplied(true)}:applySuggestion} disabled={applied&&!pendingProposal}>{pendingProposal?"Apply regenerated suggestion":applied?"Suggestion applied":"Apply suggestion"}</button>}<button onClick={()=>setWhyOpen(value=>!value)}>Ask why</button><button aria-label={`Regenerate section: ${active}`} onClick={regenerateSection} disabled={generationStatus==="loading"||(["Brand","Launch"] as StudioStep[]).includes(active)}>Regenerate {active}</button></div>
+            <div className="coach-actions">{(pendingProposal||active==="Foundation")&&<button onClick={pendingProposal?()=>{setProject(applyProposal(project,pendingProposal).project);setPendingProposal(null);setApplied(true)}:applySuggestion} disabled={applied&&!pendingProposal}>{pendingProposal?"Apply regenerated suggestion":applied?"Suggestion applied":"Apply suggestion"}</button>}<button onClick={()=>setWhyOpen(value=>!value)}>Ask why</button>{!(["Brand","Launch"] as StudioStep[]).includes(active)&&<button aria-label={`Regenerate section: ${active}`} onClick={regenerateSection} disabled={generationStatus==="loading"}>Regenerate {active}</button>}</div>
           </div>
         </section>
       </div>

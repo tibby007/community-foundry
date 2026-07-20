@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import type { CommunityProject } from "@/domain/project-schema";
 
@@ -31,7 +32,7 @@ export function ClassroomEditor({ project, onChange }: { project: CommunityProje
     const lesson = project.classroom.modules[mi].lessons[li];
     setLoading(`image-${lesson.id}`);
     try {
-      const response = await fetch("/api/images", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ assetType: "lesson", prompt: lesson.imagePrompt || `Educational visual for ${lesson.title}` }) });
+      const response = await fetch("/api/images", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ assetType: "lesson", prompt: lesson.imagePrompt || `Educational visual for ${lesson.title}`, communityName: project.foundation.name, promise: lesson.title, palette: project.brand.palette }) });
       if (!response.ok) throw new Error();
       const result = await response.json();
       changeLesson(mi, li, { imageUrl: result.url }, `classroom.modules.${mi}.lessons.${li}.imageUrl`);
@@ -84,7 +85,7 @@ export function ClassroomEditor({ project, onChange }: { project: CommunityProje
               <label>Image prompt<textarea value={lesson.imagePrompt} onChange={(e) => changeLesson(mi, li, { imagePrompt: e.target.value }, `classroom.modules.${mi}.lessons.${li}.imagePrompt`)}/></label>
               <label>Video prompt<textarea value={lesson.videoPrompt} onChange={(e) => changeLesson(mi, li, { videoPrompt: e.target.value }, `classroom.modules.${mi}.lessons.${li}.videoPrompt`)}/></label>
               <div className="lesson-media-actions"><button type="button" onClick={() => generateImage(mi, li)} disabled={loading !== null}>{loading === `image-${lesson.id}` ? "Generating image…" : "Generate lesson image"}</button><button type="button" onClick={() => createVideo(mi, li)} disabled={loading !== null}>{loading === `video-${lesson.id}` ? "Starting video…" : "Create 8-second video clip"}</button><button type="button" onClick={() => downloadPack(lesson, module.title)}>Download lesson pack</button>{lesson.videoId && lesson.videoStatus === "completed" && <a href={`/api/videos/${lesson.videoId}/content`}>Download video</a>}</div>
-              {lesson.imageUrl && <img className="lesson-image-preview" src={lesson.imageUrl} alt={`Generated visual for ${lesson.title}`}/>}<small>Short video clips are visual intros or B-roll. The complete narration is included in the lesson pack.</small>
+              {lesson.imageUrl && <Image unoptimized className="lesson-image-preview" src={lesson.imageUrl} width={1200} height={800} sizes="(max-width: 1050px) 100vw, 50vw" alt={`Generated visual for ${lesson.title}`}/>}<small>Short video clips are visual intros or B-roll. The complete narration is included in the lesson pack.</small>
             </div> : <div><label>Summary<textarea value={lesson.summary} onChange={(e) => changeLesson(mi, li, { summary: e.target.value }, `classroom.modules.${mi}.lessons.${li}.summary`)}/></label><label>Action step<textarea value={lesson.actionStep} onChange={(e) => changeLesson(mi, li, { actionStep: e.target.value }, `classroom.modules.${mi}.lessons.${li}.actionStep`)}/></label></div>}
             {notice[lesson.id] && <p className="lesson-notice" role="status">{notice[lesson.id]}</p>}
           </div>}
