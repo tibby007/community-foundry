@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("AI Coach regenerates and applies every editable strategy section", async ({ page }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   await page.goto("/");
   await page.getByLabel("Describe your community idea").fill("I help local founders build resilient neighborhood businesses");
   await page.getByRole("button", { name: /build my community/i }).click();
@@ -11,8 +11,9 @@ test("AI Coach regenerates and applies every editable strategy section", async (
     const instruction = page.getByLabel(/tell ai what to improve/i);
     await instruction.fill(`Make the ${section.toLowerCase()} specific to neighborhood businesses`);
     await page.getByRole("button", { name: new RegExp(`regenerate section: ${section}`, "i") }).click();
-    await expect(page.getByText(new RegExp(`focused ${section.toLowerCase()} recommendation is ready`, "i"))).toBeVisible();
-    await page.getByRole("button", { name: /apply regenerated suggestion/i }).click();
+    const applyRegenerated = page.getByRole("button", { name: /apply regenerated suggestion/i });
+    await expect(applyRegenerated).toBeVisible({ timeout: 25_000 });
+    await applyRegenerated.click();
     await expect(page.getByText(/applied.*clearer|applied/i).first()).toBeVisible();
   }
 

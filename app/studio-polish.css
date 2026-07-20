@@ -91,6 +91,17 @@
 .workspace-heading button:disabled { opacity: .5; cursor: not-allowed; }
 .undo-notice { margin: 10px 0 0; color: #526158; font-size: 12px; }
 
+.lesson-studio-callout {
+  padding: 16px 18px;
+  border: 2px solid color-mix(in srgb, var(--brand-primary) 24%, white);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--brand-surface) 76%, white);
+}
+
+.lesson-studio-callout b { color: var(--brand-primary); font-size: 14px; }
+.lesson-studio-callout p { margin: 7px 0 0; color: #4b4551; font-size: 13px; line-height: 1.55; }
+.lesson-row > button { min-height: 38px; padding: 9px 12px; background: var(--brand-primary); font-size: 11px; font-weight: 800; }
+
 @media (max-width: 1220px) {
   .studio-grid { grid-template-columns: 190px minmax(430px, 1fr) minmax(480px, 1fr); }
 }

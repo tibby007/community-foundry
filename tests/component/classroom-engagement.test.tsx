@@ -24,7 +24,8 @@ describe("Classroom and engagement stages", () => {
     render(<StudioShell initialProject={createProjectFromTemplate("ai-business-builder", "Women over 50")} />);
 
     await user.click(screen.getByRole("button", { name: /04\s*classroom/i }));
-    await user.click(screen.getAllByRole("button", { name: /expand lesson/i })[0]);
+    expect(screen.getByText(/turn the outline into a complete, ready-to-teach lesson/i)).toBeVisible();
+    await user.click(screen.getAllByRole("button", { name: /open lesson studio/i })[0]);
     await user.click(screen.getByRole("button", { name: /build complete lesson/i }));
 
     expect(await screen.findByLabelText("Lesson manuscript")).toHaveValue(content.manuscript);

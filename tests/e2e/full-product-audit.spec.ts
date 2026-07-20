@@ -27,7 +27,8 @@ test("a custom community completes every Studio step and working action", async 
   await expect(page.getByLabel("Community preview")).toContainText("Garden Welcome");
 
   await page.getByRole("button", { name: /continue to classroom/i }).click();
-  await page.getByRole("button", { name: /expand lesson/i }).first().click();
+  await expect(page.getByText(/turn the outline into a complete, ready-to-teach lesson/i)).toBeVisible();
+  await page.getByRole("button", { name: /open lesson studio/i }).first().click();
   await page.getByRole("button", { name: /build complete lesson/i }).click();
   await expect(page.getByLabel("Lesson manuscript")).toHaveValue(/beautiful gardens/i);
   await page.getByRole("button", { name: /generate lesson image/i }).click();

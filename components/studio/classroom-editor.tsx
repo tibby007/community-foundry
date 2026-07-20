@@ -58,6 +58,10 @@ export function ClassroomEditor({ project, onChange }: { project: CommunityProje
     const anchor = document.createElement("a"); anchor.href = url; anchor.download = `${lesson.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.md`; anchor.click(); URL.revokeObjectURL(url);
   };
   return <div className="section-form">
+    <aside className="lesson-studio-callout" aria-label="Full lesson creation">
+      <b>Build the full course, not just an outline</b>
+      <p>Open any Lesson Studio to turn the outline into a complete, ready-to-teach lesson with a manuscript, worksheet, quiz, narration, image, video clip, and downloadable pack.</p>
+    </aside>
     <div className="editor-card">
       <label>Classroom title<input value={project.classroom.title} onChange={(e) => update({ title: e.target.value }, "classroom.title")}/></label>
       <label>Member transformation<textarea value={project.classroom.transformation} onChange={(e) => update({ transformation: e.target.value }, "classroom.transformation")}/></label>
@@ -71,7 +75,7 @@ export function ClassroomEditor({ project, onChange }: { project: CommunityProje
         <small>{module.lessons.length} lessons</small>
         {module.lessons.map((lesson, li) => <div className="lesson-row" key={lesson.id}>
           <label>Lesson title<input value={lesson.title} onChange={(e) => changeLesson(mi, li, { title: e.target.value }, `classroom.modules.${mi}.lessons.${li}.title`)}/></label>
-          <button type="button" onClick={() => setExpanded(expanded === lesson.id ? null : lesson.id)}>{expanded === lesson.id ? "Close lesson" : "Expand lesson"}</button>
+          <button type="button" onClick={() => setExpanded(expanded === lesson.id ? null : lesson.id)}>{expanded === lesson.id ? "Close lesson studio" : "Open lesson studio"}</button>
           {expanded === lesson.id && <div className="lesson-manuscript">
             <div className="lesson-production-heading"><b>Lesson Production Studio</b><button type="button" onClick={() => buildLesson(mi, li)} disabled={loading !== null}>{loading === `lesson-${lesson.id}` ? "Building complete lesson…" : "Build complete lesson"}</button></div>
             <label>Objective<textarea value={lesson.objective} onChange={(e) => changeLesson(mi, li, { objective: e.target.value }, `classroom.modules.${mi}.lessons.${li}.objective`)}/></label>
