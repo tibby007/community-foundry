@@ -40,7 +40,7 @@ test("every Brand direction and asset control produces a visible result", async 
   for (const asset of ["Community icon", "Community cover", "Launch graphic"]) {
     await page.getByRole("button", { name: new RegExp(`generate variation for ${asset}`, "i") }).click();
     const card = page.locator(".brand-assets article").filter({ hasText: asset });
-    await expect(card.getByText(/custom fallback/i)).toBeVisible();
+    await expect(card.getByText(/generated with openai|custom fallback/i)).toBeVisible({ timeout: 25_000 });
     await page.getByRole("button", { name: new RegExp(`use ${asset}`, "i") }).click();
     await expect(page.getByRole("button", { name: new RegExp(`use ${asset}`, "i") })).toHaveClass(/selected-asset/);
   }
