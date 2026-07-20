@@ -53,6 +53,18 @@ describe("template library", () => {
     expect(project.foundation.description).not.toMatch(/AI agent|women over 50/i);
   });
 
+  it("builds every scratch section from the user's idea without consulting-template leakage", () => {
+    const project = createProjectFromScratch("I help local business owners automate client follow-up");
+    const completeProject = JSON.stringify(project);
+
+    expect(completeProject).toMatch(/automate client follow-up/i);
+    expect(completeProject).not.toMatch(/consulting|consultant|paying clients|profitable niche|close the right clients|deliver and refer|LinkedIn authority content|strategic referral partners/i);
+    expect(project.classroom.modules.map((module) => module.title).join(" ")).toMatch(/client follow-up/i);
+    expect(project.categories.map((category) => category.name).join(" ")).not.toMatch(/client accountability|client wins/i);
+    expect(project.promotion.socialPosts.join(" ")).toMatch(/client follow-up/i);
+    expect(project.promotion.emails.join(" ")).toMatch(/client follow-up/i);
+  });
+
   it("requires financial and health disclaimers on regulated templates", () => {
     const finance = COMMUNITY_TEMPLATES.find((item) => item.id === "debt-freedom-accountability");
     const fitness = COMMUNITY_TEMPLATES.find((item) => item.id === "fitness-habit-accountability");

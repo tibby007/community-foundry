@@ -220,7 +220,6 @@ function parseScratchIdea(ownerInput: string) {
 }
 
 export function createProjectFromScratch(ownerInput: string): CommunityProject {
-  const project = createProjectFromTemplate("consulting-client-accelerator", ownerInput);
   const idea = parseScratchIdea(ownerInput);
   const namingSuffix: Record<string, string> = {
     build: "Builder", automate: "Automation", create: "Creator", launch: "Launch", learn: "Learning",
@@ -229,47 +228,71 @@ export function createProjectFromScratch(ownerInput: string): CommunityProject {
   };
   const name = `${idea.topic} ${namingSuffix[idea.verb] ?? "Results"} Lab`.replace(/\s+/g, " ");
   const transformation = `Go from unsure where to begin to confidently ${idea.outcome} with a working result to share`;
+  const pain = `${idea.audience} want to ${idea.outcome}, but they lack a clear ${idea.topic.toLowerCase()} roadmap, hands-on feedback, and consistent support.`;
+  const customTemplate = buildTemplate({
+    id: "custom",
+    title: name,
+    audience: idea.audience,
+    pain,
+    outcome: transformation,
+    model: "paid",
+    price: 49,
+    modules: [
+      "Define the Outcome",
+      `${idea.topic} Fundamentals`,
+      `Plan the ${idea.topic} System`,
+      `Build the First ${idea.topic} Result`,
+      "Test and Improve",
+      "Launch and Measure",
+    ],
+    categories: ["Start Here", `${idea.topic} Strategy`, "Build Accountability", "Member Wins"],
+    channels: ["Educational content and live demonstrations", "Trusted community partnerships"],
+    direction: "premium",
+  });
+  const { id: templateId, ...content } = customTemplate;
+  const now = new Date().toISOString();
+
   return {
-    ...project,
-    templateId: "custom",
+    ...content,
+    id: crypto.randomUUID(),
+    templateId,
+    createdAt: now,
+    updatedAt: now,
     foundation: {
-      ...project.foundation,
+      ...content.foundation,
       name,
       alternatives: [`${idea.topic} Collective`, `${idea.topic} Accelerator`],
       promise: `Help ${idea.audience} ${idea.outcome} through guided projects, practical feedback, and peer accountability.`,
       audience: idea.audience,
-      pain: `${idea.audience} want to ${idea.outcome}, but they lack a clear ${idea.topic.toLowerCase()} roadmap, hands-on feedback, and consistent support.`,
+      pain,
       transformation,
       differentiator: `A build-first community where members learn by doing and leave with visible progress toward their own ${idea.topic.toLowerCase()} outcome.`,
       membershipCriteria: `For ${idea.audience.toLowerCase()} who are ready to ${idea.outcome} and participate in practical build sessions.`,
       description: `${name} helps ${idea.audience.toLowerCase()} ${idea.outcome} with a focused roadmap, practical projects, and peer support.`,
     },
     offer: {
-      ...project.offer,
+      ...content.offer,
       rationale: `Members are paying for a faster path to ${idea.outcome}, hands-on feedback, and the accountability to finish what they start.`,
       foundingOffer: `Founding access to ${name} at $49 per month for the first 25 members.`,
     },
     community: {
-      ...project.community,
+      ...content.community,
       welcomePost: `Welcome to ${name}. This is a working community for ${idea.audience.toLowerCase()} who are ready to ${idea.outcome}.`,
       introductionPrompt: `Tell us why you want to ${idea.outcome}, what you have tried, and what you want to complete in the next 30 days.`,
     },
     classroom: {
-      ...project.classroom,
+      ...content.classroom,
       title: `${name} Roadmap`,
       transformation,
-      modules: ["Define the Outcome", "Choose the Right Tools", "Design the Build", "Create the First Version", "Test and Improve", "Launch and Measure"].map((title, index) => ({
-        id: `module-${index + 1}`,
-        title,
-        milestone: `Member completes ${title.toLowerCase()} and shares the result.`,
-        lessons: [lesson(title, 1), lesson(title, 2)],
-      })),
     },
     promotion: {
-      ...project.promotion,
+      ...content.promotion,
       foundingCampaign: `Invite the first 25 members to help shape ${name} while they learn to ${idea.outcome}.`,
       leadMagnet: `The ${idea.topic} Quick-Start Planner`,
       launchEvent: `A 45-minute live workshop showing ${idea.audience.toLowerCase()} how to ${idea.outcome}.`,
     },
+    citations: [],
+    lockedPaths: [],
+    history: [],
   };
 }
