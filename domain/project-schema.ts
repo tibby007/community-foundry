@@ -22,6 +22,18 @@ export const LessonSchema = z.object({
   summary: z.string().min(1),
   actionStep: z.string().min(1),
   resource: z.string().min(1),
+  manuscript: z.string().default(""),
+  keyPoints: z.array(z.string()).default([]),
+  example: z.string().default(""),
+  exercise: z.string().default(""),
+  worksheet: z.string().default(""),
+  quiz: z.array(z.object({ question: z.string(), answer: z.string() })).default([]),
+  videoScript: z.string().default(""),
+  imagePrompt: z.string().default(""),
+  videoPrompt: z.string().default(""),
+  imageUrl: z.string().nullable().default(null),
+  videoId: z.string().nullable().default(null),
+  videoStatus: z.enum(["idle", "queued", "in_progress", "completed", "failed", "script_ready"]).default("idle"),
 });
 
 export const ModuleSchema = z.object({

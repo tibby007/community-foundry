@@ -22,6 +22,18 @@ const lesson = (moduleTitle: string, index: number) => ({
   summary: `A focused lesson that turns ${moduleTitle.toLowerCase()} into a repeatable member action.`,
   actionStep: `Complete the ${moduleTitle} action sprint.`,
   resource: `${moduleTitle} worksheet`,
+  manuscript: "",
+  keyPoints: [],
+  example: "",
+  exercise: "",
+  worksheet: "",
+  quiz: [],
+  videoScript: "",
+  imagePrompt: "",
+  videoPrompt: "",
+  imageUrl: null,
+  videoId: null,
+  videoStatus: "idle" as const,
 });
 
 const categoryDescriptions: Record<string, string> = {
