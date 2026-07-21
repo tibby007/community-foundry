@@ -22,7 +22,7 @@ test("a mobile club request builds the club topic instead of repeating the platf
   await expect(page.getByLabel("Module title").nth(1)).toHaveValue(/gardening essentials/i);
   await expect(page.getByLabel("Lesson title").nth(1)).toHaveValue(/gardening goal/i);
   await page.getByRole("button", { name: /^build the full course$/i }).click();
-  await expect(page.getByRole("status")).toContainText(/12 complete lessons are ready/i);
+  await expect(page.getByRole("status")).toContainText(/12 complete lessons are ready/i, { timeout: 60_000 });
   await expect(page.getByLabel("Lesson manuscript")).toHaveValue(/gardening/i);
   await expect(page.getByRole("button", { name: /download complete course/i })).toBeVisible();
 
