@@ -101,11 +101,12 @@ test("preview supports mobile mode, keyboard navigation, and reduced motion", as
   await expect(page.locator("html")).toHaveCSS("scroll-behavior", "auto");
 });
 
-test("launch package includes the campaign export and unsupported Skool routes", async ({ page }) => {
+test("launch package includes the campaign export and plan-aware Skool guidance", async ({ page }) => {
   await page.goto("/build/demo");
   await page.getByRole("button", { name: /08\s*launch/i }).click();
   const campaignDownload = page.waitForEvent("download");
   await page.getByRole("button", { name: /campaign pack/i }).click();
   expect((await campaignDownload).suggestedFilename()).toContain("campaign.md");
-  await expect(page.getByText("Export required").first()).toBeVisible();
+  await expect(page.getByText(/Skool Hobby: guided setup/i)).toBeVisible();
+  await expect(page.getByText(/no connection required/i)).toBeVisible();
 });

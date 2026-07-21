@@ -75,8 +75,12 @@ test("a custom community completes every Studio step and working action", async 
   await page.getByLabel("Social post 1").fill("Show us the garden space you are transforming.");
 
   await page.getByRole("button", { name: /continue to launch/i }).click();
+  await expect(page.getByText(/Skool Hobby: guided setup/i)).toBeVisible();
+  await expect(page.getByText(/no connection required/i)).toBeVisible();
+  await expect(page.getByText(/Zapier.*optional.*Skool Pro/i)).toBeVisible();
+  await expect(page.getByText(/credential check required/i)).toHaveCount(0);
   const exports = page.locator(".export-center");
-  for (const label of ["Launch blueprint", "Project data", "Classroom", "Community setup", "Campaign pack"]) {
+  for (const label of ["Start here: Skool setup guide", "Launch blueprint", "Project data", "Classroom", "Community setup", "Campaign pack"]) {
     const download = page.waitForEvent("download");
     await exports.getByRole("button", { name: new RegExp(label, "i") }).click();
     expect((await download).suggestedFilename().length).toBeGreaterThan(5);

@@ -102,6 +102,36 @@
 .lesson-studio-callout p { margin: 7px 0 0; color: #4b4551; font-size: 13px; line-height: 1.55; }
 .lesson-row > button { min-height: 38px; padding: 9px 12px; background: var(--brand-primary); font-size: 11px; font-weight: 800; }
 
+.export-center > header { padding: 20px; background: var(--brand-ink); }
+.export-center header small { color: var(--brand-accent); font-size: 10px; font-weight: 800; }
+.export-center h2 { font-size: 25px; }
+.export-use-order { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin: 0; padding: 0; list-style: none; background: var(--line); }
+.export-use-order li { display: grid; grid-template-columns: 30px 1fr; gap: 9px; padding: 15px 13px; background: color-mix(in srgb, var(--brand-surface) 62%, white); }
+.export-use-order li > span { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; color: white; background: var(--brand-primary); font-size: 11px; font-weight: 900; }
+.export-use-order b,.export-use-order small { display: block; }
+.export-use-order b { font-size: 11px; line-height: 1.35; }
+.export-use-order small { margin-top: 4px; color: var(--muted); font-size: 9px; line-height: 1.45; }
+.export-center > .export-file-grid { grid-template-columns: 1fr 1fr; }
+.export-center button { min-height: 78px; padding: 16px; }
+.export-center button.primary-export { grid-column: 1 / -1; border-left: 5px solid var(--brand-accent); background: color-mix(in srgb, var(--brand-surface) 55%, white); }
+.export-center button:hover { background: color-mix(in srgb, var(--brand-surface) 72%, white); }
+.export-center button b { font-size: 12px; line-height: 1.35; }
+.export-center button small { margin-top: 5px; font-size: 10px; line-height: 1.45; }
+.export-center > footer { padding: 13px 16px; font-size: 10px; line-height: 1.45; }
+
+.capability-report { padding: 20px; }
+.capability-report header small { color: var(--brand-primary); font-size: 10px; font-weight: 800; }
+.capability-report h2 { font-size: 24px; }
+.capability-report > p { font-size: 12px; line-height: 1.5; }
+.plan-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.capability-report .plan-mode { display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 11px; padding: 15px; border: 1px solid var(--line); border-radius: 11px; font-size: 11px; }
+.capability-report .plan-mode.selected-plan { border: 2px solid color-mix(in srgb, var(--brand-primary) 40%, white); background: color-mix(in srgb, var(--brand-surface) 62%, white); }
+.plan-mode b,.plan-mode strong { display: block; }
+.plan-mode b { font-size: 13px; }
+.plan-mode strong { margin-top: 5px; color: #27795a; font-size: 11px; }
+.plan-mode p { margin: 7px 0 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.capability-report > footer { padding-top: 13px; font-size: 10px; line-height: 1.45; }
+
 @media (max-width: 1220px) {
   .studio-grid { grid-template-columns: 190px minmax(430px, 1fr) minmax(480px, 1fr); }
 }
@@ -109,6 +139,13 @@
 @media (max-width: 1050px) {
   .studio-grid { grid-template-columns: 75px 1fr; }
   .studio-preview-panel { grid-column: 2; }
+}
+
+@media (max-width: 720px) {
+  .export-use-order { grid-template-columns: 1fr 1fr; }
+  .export-center > .export-file-grid { grid-template-columns: 1fr; }
+  .export-center button.primary-export { grid-column: auto; }
+  .plan-modes { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 650px) {

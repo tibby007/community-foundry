@@ -1,4 +1,20 @@
-"use client";
-import {CheckCircle2,Download,PlugZap,XCircle} from "lucide-react";
-import {desiredCapabilities} from "@/domain/capabilities";
-export function CapabilityReport(){return <section className="capability-report"><header><div><small>SKOOL CONNECTION</small><h2>Publish what the connection proves</h2></div><PlugZap size={22}/></header><p>Until credentials are verified, every setup item remains safely available in your export package.</p><div>{desiredCapabilities.map(item=>{const supported=item.action==="invite-member"||item.action==="unlock-course";return <article key={item.action}>{supported?<CheckCircle2 size={15}/>:<XCircle size={15}/>}<b>{item.label}</b><span>{supported?"Credential check required":"Export required"}</span>{!supported&&<Download size={13}/>}</article>})}</div><footer>No action is sent without a payload preview and confirmation.</footer></section>}
+import { CheckCircle2, Download, PlugZap } from "lucide-react";
+
+export function CapabilityReport() {
+  return <section className="capability-report">
+    <header><div><small>CHOOSE YOUR SKOOL PATH</small><h2>Launch on any Skool plan</h2></div><PlugZap size={22}/></header>
+    <p>Community Foundry never blocks your launch because you do not have an integration.</p>
+    <div className="plan-modes">
+      <article className="plan-mode selected-plan">
+        <CheckCircle2 size={19}/>
+        <div><b>Skool Hobby: guided setup</b><strong>No connection required</strong><p>Use the Start Here guide, copy-ready files, lesson packs, and brand downloads to build the group manually.</p></div>
+        <Download size={17}/>
+      </article>
+      <article className="plan-mode">
+        <PlugZap size={19}/>
+        <div><b>Skool Pro: optional automation</b><strong>Upgrade only when it earns its keep</strong><p>Zapier is optional and requires Skool Pro. It supports member invitations and course unlocks, not full community publishing.</p></div>
+      </article>
+    </div>
+    <footer>Community creation, categories, lessons, posts, and branding use the guided setup on both plans.</footer>
+  </section>;
+}
