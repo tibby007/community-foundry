@@ -71,6 +71,20 @@ describe("template library", () => {
     expect(projectText).not.toMatch(/gardening|skool group for creator/i);
   });
 
+  it("creates a teachable topic-aware classroom instead of generic understand and apply lessons", () => {
+    const gardening = createProjectFromScratch("I want to create a Skool group for my gardening club");
+    const photography = createProjectFromScratch("Create a community for our neighborhood photography club");
+    const gardeningClassroom = JSON.stringify(gardening.classroom);
+    const photographyClassroom = JSON.stringify(photography.classroom);
+
+    expect(gardening.classroom.modules).toHaveLength(6);
+    expect(gardening.classroom.modules.flatMap((module) => module.lessons)).toHaveLength(12);
+    expect(gardeningClassroom).toMatch(/gardening goal|gardening essentials|gardening project|gardening progress/i);
+    expect(gardeningClassroom).not.toMatch(/Understand Welcome|Apply Welcome|Understand Share|Apply Share/i);
+    expect(photographyClassroom).toMatch(/photography goal|photography essentials|photography project|photography progress/i);
+    expect(photographyClassroom).not.toMatch(/gardening/i);
+  });
+
   it("recommends a visual direction from the scratch topic", () => {
     const garden = createProjectFromScratch("I help women over 40 create beautiful gardens");
     const technology = createProjectFromScratch("I help women over 50 build AI agents");

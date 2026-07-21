@@ -32,32 +32,66 @@ export type LessonContent = z.infer<typeof LessonContentSchema>;
 
 export function buildFallbackLessonContent(request: LessonContentRequest): LessonContent {
   const topic = request.moduleTitle;
+  const focus = request.lessonTitle;
   const audience = request.audience;
   const brandDirection = request.brandDirection ?? "authority";
   const palette = request.palette ?? ["#11263D", "#2E5B88", "#D29B45", "#F4F1EA"];
+  const lessonStage = /\b(meet|welcome)\b/i.test(focus) ? {
+    situation: `Review the purpose of ${request.communityName}, the community norms, the classroom path, and the places where members can ask for support. Notice which parts of the community will help you make progress with ${topic}.`,
+    success: `A successful start means other members understand who you are, what brought you here, the experience you already have, and the first ${topic.toLowerCase()} goal you want help completing.`,
+    process: `Write a useful introduction, find the discussion category and classroom module connected to your goal, then respond to one member whose interests overlap with yours. This creates a real starting relationship instead of a silent profile.`,
+    review: `Check that your introduction gives enough context for members to support you and includes one clear goal. Save the community guidelines and decide when you will return for your first check-in.`,
+    exercise: `Post an introduction that shares your connection to ${topic}, one relevant experience, your first goal, and the kind of support you would value. Then welcome one member and respond to something specific they shared.`,
+    worksheet: `WELCOME WORKSHEET: ${focus}\n1. Why did I join?\n2. What experience do I bring?\n3. What is my first goal?\n4. Where should I ask questions?\n5. What support would help?\n6. Which member will I welcome today?`,
+    keyPoints: [`A useful introduction gives members enough context to offer relevant support.`, `One specific goal makes it easier to choose the right classroom lesson and discussion category.`, `Welcoming another member turns orientation into immediate participation.`],
+  } : /\bgoal\b/i.test(focus) ? {
+    situation: `Look at what you want to accomplish with ${topic}, what matters most right now, and how much time and attention you can realistically give it. Separate a meaningful result from a vague wish.`,
+    success: `A strong goal is specific enough to guide action, realistic for your current season, and visible enough that you and the community can recognize progress.`,
+    process: `Write the desired result, choose a 30-day milestone, identify why it matters, and name the first action. Check that the goal belongs to you and is not based only on what other members are doing.`,
+    review: `Read the goal aloud. If the next action is unclear or success cannot be observed, make the language more specific before you share it.`,
+    exercise: `Write one 30-day ${topic.toLowerCase()} goal with a visible result, a realistic deadline, a reason it matters, and one action you can complete this week. Share it for accountability.`,
+    worksheet: `GOAL WORKSHEET: ${focus}\n1. What do I want to accomplish?\n2. Why now?\n3. What will progress look like?\n4. What can I finish in 30 days?\n5. What is the first action?\n6. When will I check in?`,
+    keyPoints: [`Choose one goal that matters now instead of carrying several competing priorities.`, `Describe progress in a way that can be seen, counted, completed, or clearly explained.`, `Pair the goal with an immediate action and a community check-in date.`],
+  } : /\b(plan|step-by-step)\b/i.test(focus) ? {
+    situation: `Start with the chosen ${topic.toLowerCase()} result, deadline, current starting point, and any decisions that must be made before work begins.`,
+    success: `A useful plan shows the sequence of work, required resources, decision points, timeline, checkpoints, and the evidence that will mark completion.`,
+    process: `Work backward from the intended result. Break the project into stages, put the steps in order, estimate what each stage requires, and schedule the first action. Add checkpoints where you can review progress before moving forward.`,
+    review: `Look for missing steps, unrealistic timing, hidden dependencies, and tasks that are too large to start. Revise the plan until the next action is obvious.`,
+    exercise: `Create a step-by-step plan for ${focus.toLowerCase()} with an ordered sequence, timeline, required resources, two progress checkpoints, and one first action scheduled on your calendar.`,
+    worksheet: `PLANNING WORKSHEET: ${focus}\n1. What is the finished result?\n2. What are the major stages?\n3. What sequence should the steps follow?\n4. Which resources are required?\n5. Where are the checkpoints?\n6. What happens first, and when?`,
+    keyPoints: [`Plan backward from the finished result so every step has a reason to exist.`, `Use checkpoints to catch problems before they affect the entire project.`, `A plan becomes useful when the first action has a clear time and place.`],
+  } : {
+    situation: `Describe your current conditions, the space or setting you are working in, the resources available, your experience level, and any constraints that could affect the result.`,
+    success: `Decide what a successful outcome for ${focus.toLowerCase()} would look like. Make it observable and choose the most important criteria before you begin.`,
+    process: `Gather what you need and put the steps in an order you can follow. Work one step at a time, pause at important decisions, and record what you notice.`,
+    review: `Compare the result with your success criteria, note what worked, identify what needs attention, and choose one focused improvement.`,
+    exercise: `Complete a real pass through ${focus.toLowerCase()}. Record your starting conditions, intended result, required resources, ordered steps, observations, and one adjustment. Share the result with enough context for another member to give useful feedback.`,
+    worksheet: `WORKSHEET: ${focus}\n1. What are the current conditions and constraints?\n2. What result will show meaningful progress?\n3. Which resources, materials, or information are needed?\n4. What steps will you follow, in order?\n5. What did you observe while completing the work?\n6. What is the next decision or improvement?`,
+    keyPoints: [`Start ${focus.toLowerCase()} with an honest review of conditions, resources, experience, and constraints.`, `Define an observable result and follow a clear sequence instead of relying on vague intentions.`, `Use direct observation and focused community feedback to choose the next improvement.`],
+  };
   const manuscript = [
-    `Welcome to ${request.lessonTitle}, part of ${request.communityName}. This lesson is designed for ${audience}. By the end, you will understand the purpose of ${topic}, recognize the decisions that matter most, and complete a practical first version you can improve.`,
-    `Start with the outcome. ${request.transformation}. Do not begin with tools or features. Write down the person, problem, input, action, and finished result. This keeps the work focused on a useful transformation instead of an impressive but unnecessary build.`,
-    `Next, map the simplest path from the current problem to the desired result. Identify what must happen, what information is required, where a human should review the work, and how success will be measured. Keep the first version small enough to test today.`,
-    `Now build the smallest working example. Use one realistic scenario, follow the process from beginning to end, and record what worked, what failed, and what confused you. A useful first version teaches more than a perfect plan that never gets tested.`,
-    `Finally, improve the result using evidence. Ask whether the output is accurate, understandable, safe, and valuable to the intended person. Make one improvement at a time, test again, and share the result with the community for focused feedback.`,
-    `Your goal is progress you can demonstrate. Complete the exercise, use the worksheet to document your decisions, and post your result. The community can help you strengthen the next version once there is something concrete to review.`,
+    `Welcome to ${focus}, part of ${request.communityName}. This lesson is for ${audience}. By the end, you will have a clear decision, plan, or completed action connected to ${topic}, plus something useful to share with the community.`,
+    `Begin with the larger member transformation: ${request.transformation}. For this lesson, focus specifically on ${focus.toLowerCase()}. ${lessonStage.situation}`,
+    lessonStage.success,
+    lessonStage.process,
+    lessonStage.review,
+    `Finish by sharing one concrete result from ${focus.toLowerCase()}. Include enough context for useful feedback and ask one specific question. The purpose of this lesson is to leave with practical progress you can see, explain, and improve.`,
   ].join("\n\n");
 
   return LessonContentSchema.parse({
-    objective: `Create and evaluate a practical first version of ${topic} that moves ${audience} toward the promised transformation.`,
+    objective: `Complete ${focus.toLowerCase()} with a clear plan, observable result, and next step that moves ${audience} toward the member transformation.`,
     manuscript,
-    keyPoints: [`Lead with the member outcome before choosing tools for ${topic}.`, `Build the smallest version that can be tested with a realistic example.`, `Use evidence and peer feedback to improve one decision at a time.`],
-    example: `Imagine one member from ${audience} working through ${topic}. They choose one real situation, define the desired result, build a small first version, and test it before adding complexity. Their evidence becomes the basis for the next improvement.`,
-    exercise: `Choose one real situation related to ${topic}. Write the intended user, current problem, desired result, required inputs, main action, and success measure. Build or outline the smallest working version, then test it once and record the result.`,
-    worksheet: `WORKSHEET\n1. Who is this for?\n2. What problem are they experiencing?\n3. What result should ${topic} produce?\n4. What inputs are required?\n5. Where is human review needed?\n6. What will count as a successful first test?`,
+    keyPoints: lessonStage.keyPoints,
+    example: `A member from ${audience} begins ${focus.toLowerCase()} by reviewing their current conditions, available space, time, materials, and experience. They choose a realistic result, follow the steps, document what happens, and share one focused question instead of asking for general opinions.`,
+    exercise: lessonStage.exercise,
+    worksheet: lessonStage.worksheet,
     quiz: [
-      { question: `What should be defined before selecting tools for ${topic}?`, answer: "The member outcome and measurable result." },
-      { question: "Why should the first version stay small?", answer: "So it can be tested quickly with a realistic example." },
-      { question: "What should guide the next improvement?", answer: "Evidence from testing and focused feedback." },
+      { question: `What should you review before starting ${focus.toLowerCase()}?`, answer: "The current conditions, available resources, experience level, and constraints." },
+      { question: "Why should the intended result be observable?", answer: "So progress can be evaluated using evidence instead of guesswork." },
+      { question: "What makes a community feedback request useful?", answer: "Enough context plus one specific question about the work." },
     ],
-    actionStep: `Complete one realistic test of ${topic}, document the output, and share one specific question with the community.`,
-    videoScript: `Welcome to ${request.lessonTitle}. In this lesson, we are going to make ${topic} practical for ${audience}. First, define the exact result you want to create. Next, map the simplest path from the current problem to that result. Then build a small first version and test it with one realistic example. Do not chase perfection. Your first version exists to teach you what to improve. Review the result for accuracy, clarity, safety, and usefulness. Complete the worksheet, run your test, and share what happened with the community. Your next move is simple: create something concrete enough to evaluate and improve.`,
+    actionStep: `Complete the next real action for ${focus.toLowerCase()}, document what you observed, and share one specific feedback question with the community.`,
+    videoScript: `Welcome to ${focus}. This lesson helps ${audience} make practical progress with ${topic}. ${lessonStage.situation} ${lessonStage.success} ${lessonStage.process} Use the worksheet to capture your choices, actions, and next step. Finish by sharing one concrete result and one focused question with the community.`,
     imagePrompt: `A polished editorial educational diagram for ${request.lessonTitle} in ${request.communityName}, showing a clear path from problem to plan to build to test to result, ${brandDirection} visual direction using ${palette.join(", ")}, landscape, no logos, minimal readable text.`,
     videoPrompt: `A polished cinematic educational intro for ${request.lessonTitle}, visually showing ${topic} moving from an unclear idea to a mapped plan, a working build, a test, and a confident result, ${brandDirection} visual direction using ${palette.join(", ")}, diverse adult learners, landscape, synced ambient audio, no logos, no on-screen text.`,
   });

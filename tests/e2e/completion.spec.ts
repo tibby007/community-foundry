@@ -23,7 +23,7 @@ test("build-from-scratch creates an editable autosaved project", async ({ page }
   await page.getByRole("button", { name: /03\s*community/i }).click();
   await expect(page.getByRole("textbox", { name: "Category name" }).nth(1)).toHaveValue(/AI Agent Strategy/i);
   await page.getByRole("button", { name: /04\s*classroom/i }).click();
-  await expect(page.getByRole("textbox", { name: "Module title" }).nth(1)).toHaveValue(/AI Agent Fundamentals/i);
+  await expect(page.getByRole("textbox", { name: "Module title" }).nth(1)).toHaveValue(/AI Agent Essentials/i);
   await page.getByRole("button", { name: /07\s*promotion/i }).click();
   await expect(page.getByLabel("Social post 1")).toHaveValue(/AI agent/i);
   await page.getByRole("button", { name: /01\s*foundation/i }).click();

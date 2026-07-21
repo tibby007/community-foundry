@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { createProjectFromScratch } from "@/data/templates";
 
 test("a mobile club request builds the club topic instead of repeating the platform instruction", async ({ page }) => {
+  test.setTimeout(120_000);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await page.getByLabel("Describe your community idea").fill("I want to create a Skool group for my gardening clu");
@@ -18,7 +19,12 @@ test("a mobile club request builds the club topic instead of repeating the platf
   await expect(page.getByRole("textbox", { name: "Category name" }).nth(1)).toHaveValue(/gardening discussion/i);
 
   await page.getByRole("button", { name: /04\s*classroom/i }).click();
-  await expect(page.getByLabel("Module title").nth(1)).toHaveValue(/gardening foundations/i);
+  await expect(page.getByLabel("Module title").nth(1)).toHaveValue(/gardening essentials/i);
+  await expect(page.getByLabel("Lesson title").nth(1)).toHaveValue(/gardening goal/i);
+  await page.getByRole("button", { name: /^build the full course$/i }).click();
+  await expect(page.getByRole("status")).toContainText(/12 complete lessons are ready/i);
+  await expect(page.getByLabel("Lesson manuscript")).toHaveValue(/gardening/i);
+  await expect(page.getByRole("button", { name: /download complete course/i })).toBeVisible();
 
   await page.getByRole("button", { name: /07\s*promotion/i }).click();
   await expect(page.getByLabel("Lead magnet")).toHaveValue(/gardening/i);

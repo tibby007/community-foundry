@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import type { CommunityProject } from "@/domain/project-schema";
+import { buildTopicAwareModules, inferCourseTopic } from "@/lib/course-structure";
 
 type Lesson = CommunityProject["classroom"]["modules"][number]["lessons"][number];
 
@@ -10,6 +11,8 @@ export function ClassroomEditor({ project, onChange }: { project: CommunityProje
   const [expanded, setExpanded] = useState<string | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
   const [notice, setNotice] = useState<Record<string, string>>({});
+  const [courseProgress, setCourseProgress] = useState({ complete: 0, total: 0 });
+  const [courseNotice, setCourseNotice] = useState("");
   const update = (changes: Partial<CommunityProject["classroom"]>, path: string) => onChange?.({ ...project, classroom: { ...project.classroom, ...changes } }, path);
   const changeLesson = (mi: number, li: number, changes: Partial<Lesson>, path: string) => {
     const modules = structuredClone(project.classroom.modules);
@@ -27,6 +30,47 @@ export function ClassroomEditor({ project, onChange }: { project: CommunityProje
       setNotice((v) => ({ ...v, [lesson.id]: result.provider === "openai" ? "Complete lesson created with AI." : "Complete lesson created with the reliable demo engine." }));
     } catch { setNotice((v) => ({ ...v, [lesson.id]: "Lesson generation failed. Please try again." })); }
     finally { setLoading(null); }
+  };
+  const requestLesson = async (moduleTitle: string, lessonTitle: string) => {
+    const response = await fetch("/api/lessons", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        communityName: project.foundation.name,
+        audience: project.foundation.audience,
+        transformation: project.foundation.transformation,
+        moduleTitle,
+        lessonTitle,
+        brandDirection: project.brand.direction,
+        palette: project.brand.palette,
+      }),
+    });
+    if (!response.ok) throw new Error("Lesson generation failed");
+    return (await response.json()) as { content: Partial<Lesson>; provider: "openai" | "fallback" };
+  };
+  const buildFullCourse = async () => {
+    const genericOutline = project.classroom.modules.some((module) => module.lessons.some((item) => /^(Understand|Apply)\b/i.test(item.title)));
+    const modules = structuredClone(genericOutline ? buildTopicAwareModules(inferCourseTopic(project)) : project.classroom.modules);
+    const lessonJobs = modules.flatMap((module, mi) => module.lessons.map((item, li) => ({ module, item, mi, li })));
+    setLoading("course");
+    setCourseProgress({ complete: 0, total: lessonJobs.length });
+    setCourseNotice("");
+    let complete = 0;
+    try {
+      await Promise.all(lessonJobs.map(async ({ module, item, mi, li }) => {
+        const result = await requestLesson(module.title, item.title);
+        Object.assign(modules[mi].lessons[li], result.content);
+        complete += 1;
+        setCourseProgress({ complete, total: lessonJobs.length });
+      }));
+      update({ modules }, "classroom.modules");
+      setExpanded(modules[0]?.lessons[0]?.id ?? null);
+      setCourseNotice(`${modules.length} modules and ${lessonJobs.length} complete lessons are ready. The first lesson is open below.`);
+    } catch {
+      setCourseNotice("The full course could not be completed. Your existing classroom is unchanged. Try again.");
+    } finally {
+      setLoading(null);
+    }
   };
   const generateImage = async (mi: number, li: number) => {
     const lesson = project.classroom.modules[mi].lessons[li];
@@ -57,10 +101,43 @@ export function ClassroomEditor({ project, onChange }: { project: CommunityProje
     const url = URL.createObjectURL(new Blob([text], { type: "text/markdown" }));
     const anchor = document.createElement("a"); anchor.href = url; anchor.download = `${lesson.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.md`; anchor.click(); URL.revokeObjectURL(url);
   };
+  const downloadCompleteCourse = () => {
+    const text = [
+      `# ${project.classroom.title}`,
+      `\n## Member transformation\n${project.classroom.transformation}`,
+      `\n## How to use this course\nCreate each module in Skool Classroom in the order shown. Add each lesson under its module, paste in the manuscript and worksheet, then upload any generated media. Review and personalize the teaching examples before publishing.`,
+      ...project.classroom.modules.flatMap((module, moduleIndex) => [
+        `\n# Module ${moduleIndex + 1}: ${module.title}\nMilestone: ${module.milestone}`,
+        ...module.lessons.map((item, lessonIndex) => [
+          `\n## Lesson ${moduleIndex + 1}.${lessonIndex + 1}: ${item.title}`,
+          `### Objective\n${item.objective}`,
+          `### Manuscript\n${item.manuscript}`,
+          `### Key teaching points\n${item.keyPoints.map((point) => `- ${point}`).join("\n")}`,
+          `### Practical example\n${item.example}`,
+          `### Exercise\n${item.exercise}`,
+          `### Worksheet\n${item.worksheet}`,
+          `### Quiz\n${item.quiz.map((question, index) => `${index + 1}. ${question.question}\nAnswer: ${question.answer}`).join("\n\n")}`,
+          `### Action step\n${item.actionStep}`,
+          `### Video narration\n${item.videoScript}`,
+          `### Image prompt\n${item.imagePrompt}`,
+          `### Video prompt\n${item.videoPrompt}`,
+        ].join("\n\n")),
+      ]),
+    ].join("\n");
+    const url = URL.createObjectURL(new Blob([text], { type: "text/markdown" }));
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${project.classroom.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-complete-course.md`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+  const courseReady = project.classroom.modules.every((module) => module.lessons.every((item) => item.manuscript.length > 0));
   return <div className="section-form">
     <aside className="lesson-studio-callout" aria-label="Full lesson creation">
-      <b>Build the full course, not just an outline</b>
-      <p>Open any Lesson Studio to turn the outline into a complete, ready-to-teach lesson with a manuscript, worksheet, quiz, narration, image, video clip, and downloadable pack.</p>
+      <div className="course-build-heading"><div><b>Build the full course, not just an outline</b><p>One click creates every complete lesson with a manuscript, worksheet, quiz, exercise, narration, and media prompts. You can still edit or rebuild any lesson afterward.</p></div><button type="button" onClick={buildFullCourse} disabled={loading !== null}>{loading === "course" ? `Building lesson ${courseProgress.complete} of ${courseProgress.total}…` : "Build the full course"}</button></div>
+      {courseProgress.total > 0 && loading === "course" && <progress aria-label="Full course build progress" value={courseProgress.complete} max={courseProgress.total}/>}
+      {courseNotice && <p className="course-build-notice" role="status">{courseNotice}</p>}
+      {courseReady && <button className="download-course-button" type="button" onClick={downloadCompleteCourse}>Download complete course</button>}
     </aside>
     <div className="editor-card">
       <label>Classroom title<input value={project.classroom.title} onChange={(e) => update({ title: e.target.value }, "classroom.title")}/></label>

@@ -1,5 +1,6 @@
 import type { CommunityProject, CommunityTemplate } from "@/domain/project-schema";
 import { getBrandTheme, recommendBrandDirection } from "@/lib/brand-system";
+import { buildTopicAwareModules } from "@/lib/course-structure";
 
 type TemplateSeed = {
   id: string;
@@ -333,6 +334,7 @@ export function createProjectFromScratch(ownerInput: string): CommunityProject {
       ...content.classroom,
       title: `${name} Roadmap`,
       transformation,
+      modules: buildTopicAwareModules(idea.topic),
     },
     promotion: {
       ...content.promotion,

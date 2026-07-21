@@ -27,14 +27,15 @@ test("a custom community completes every Studio step and working action", async 
   await expect(page.getByLabel("Community preview")).toContainText("Garden Welcome");
 
   await page.getByRole("button", { name: /continue to classroom/i }).click();
-  await expect(page.getByText(/turn the outline into a complete, ready-to-teach lesson/i)).toBeVisible();
-  await page.getByRole("button", { name: /open lesson studio/i }).first().click();
-  await page.getByRole("button", { name: /build complete lesson/i }).click();
+  await expect(page.getByText(/one click creates every complete lesson/i)).toBeVisible();
+  await page.getByRole("button", { name: /^build the full course$/i }).click();
+  await expect(page.getByRole("status")).toContainText(/12 complete lessons are ready/i);
   await expect(page.getByLabel("Lesson manuscript")).toHaveValue(/beautiful gardens/i);
+  await expect(page.getByRole("button", { name: /download complete course/i })).toBeVisible();
   await page.getByRole("button", { name: /generate lesson image/i }).click();
   await expect(page.getByRole("img", { name: /generated visual/i })).toBeVisible();
   await page.getByRole("button", { name: /create 8-second video clip/i }).click();
-  await expect(page.getByRole("status")).toContainText(/production pack|video script|render/i);
+  await expect(page.locator(".lesson-notice")).toContainText(/production pack|video script|render/i);
   const lessonDownload = page.waitForEvent("download");
   await page.getByRole("button", { name: /download lesson pack/i }).click();
   expect((await lessonDownload).suggestedFilename()).toMatch(/\.md$/);
