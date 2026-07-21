@@ -37,12 +37,13 @@ export function buildFallbackLessonContent(request: LessonContentRequest): Lesso
   const brandDirection = request.brandDirection ?? "authority";
   const palette = request.palette ?? ["#11263D", "#2E5B88", "#D29B45", "#F4F1EA"];
   const lessonStage = /\b(meet|welcome)\b/i.test(focus) ? {
-    situation: `Review the purpose of ${request.communityName}, the community norms, the classroom path, and the places where members can ask for support. Notice which parts of the community will help you make progress with ${topic}.`,
-    success: `A successful start means other members understand who you are, what brought you here, the experience you already have, and the first ${topic.toLowerCase()} goal you want help completing.`,
+    situation: `Review the purpose of ${request.communityName}, the community norms, the classroom path, and the places where members can ask for support. Notice which parts of the community will help you make progress toward your first goal.`,
+    success: `A successful start means other members understand who you are, what brought you here, the experience you already have, and the first goal you want help completing.`,
     process: `Write a useful introduction, find the discussion category and classroom module connected to your goal, then respond to one member whose interests overlap with yours. This creates a real starting relationship instead of a silent profile.`,
     review: `Check that your introduction gives enough context for members to support you and includes one clear goal. Save the community guidelines and decide when you will return for your first check-in.`,
     exercise: `Post an introduction that shares your connection to ${topic}, one relevant experience, your first goal, and the kind of support you would value. Then welcome one member and respond to something specific they shared.`,
     worksheet: `WELCOME WORKSHEET: ${focus}\n1. Why did I join?\n2. What experience do I bring?\n3. What is my first goal?\n4. Where should I ask questions?\n5. What support would help?\n6. Which member will I welcome today?`,
+    example: `For example, a new member of ${request.communityName} shares why they joined, one experience that shaped their interest, and a clear first goal. They ask for one kind of support, then welcome another member by responding to a specific detail in that person's introduction.`,
     keyPoints: [`A useful introduction gives members enough context to offer relevant support.`, `One specific goal makes it easier to choose the right classroom lesson and discussion category.`, `Welcoming another member turns orientation into immediate participation.`],
   } : /\bgoal\b/i.test(focus) ? {
     situation: `Look at what you want to accomplish with ${topic}, what matters most right now, and how much time and attention you can realistically give it. Separate a meaningful result from a vague wish.`,
@@ -51,6 +52,7 @@ export function buildFallbackLessonContent(request: LessonContentRequest): Lesso
     review: `Read the goal aloud. If the next action is unclear or success cannot be observed, make the language more specific before you share it.`,
     exercise: `Write one 30-day ${topic.toLowerCase()} goal with a visible result, a realistic deadline, a reason it matters, and one action you can complete this week. Share it for accountability.`,
     worksheet: `GOAL WORKSHEET: ${focus}\n1. What do I want to accomplish?\n2. Why now?\n3. What will progress look like?\n4. What can I finish in 30 days?\n5. What is the first action?\n6. When will I check in?`,
+    example: `For example, a member of ${request.communityName} replaces a broad wish with one 30-day result, a visible milestone, and a first action scheduled for this week. The community can now support a real commitment instead of guessing what progress means.`,
     keyPoints: [`Choose one goal that matters now instead of carrying several competing priorities.`, `Describe progress in a way that can be seen, counted, completed, or clearly explained.`, `Pair the goal with an immediate action and a community check-in date.`],
   } : /\b(plan|step-by-step)\b/i.test(focus) ? {
     situation: `Start with the chosen ${topic.toLowerCase()} result, deadline, current starting point, and any decisions that must be made before work begins.`,
@@ -59,6 +61,7 @@ export function buildFallbackLessonContent(request: LessonContentRequest): Lesso
     review: `Look for missing steps, unrealistic timing, hidden dependencies, and tasks that are too large to start. Revise the plan until the next action is obvious.`,
     exercise: `Create a step-by-step plan for ${focus.toLowerCase()} with an ordered sequence, timeline, required resources, two progress checkpoints, and one first action scheduled on your calendar.`,
     worksheet: `PLANNING WORKSHEET: ${focus}\n1. What is the finished result?\n2. What are the major stages?\n3. What sequence should the steps follow?\n4. Which resources are required?\n5. Where are the checkpoints?\n6. What happens first, and when?`,
+    example: `For example, a member of ${request.communityName} works backward from the finished result, divides the project into stages, adds a realistic timeline and two checkpoints, then schedules the first action. The plan shows what happens next and how progress will be reviewed.`,
     keyPoints: [`Plan backward from the finished result so every step has a reason to exist.`, `Use checkpoints to catch problems before they affect the entire project.`, `A plan becomes useful when the first action has a clear time and place.`],
   } : {
     situation: `Describe your current conditions, the space or setting you are working in, the resources available, your experience level, and any constraints that could affect the result.`,
@@ -67,6 +70,7 @@ export function buildFallbackLessonContent(request: LessonContentRequest): Lesso
     review: `Compare the result with your success criteria, note what worked, identify what needs attention, and choose one focused improvement.`,
     exercise: `Complete a real pass through ${focus.toLowerCase()}. Record your starting conditions, intended result, required resources, ordered steps, observations, and one adjustment. Share the result with enough context for another member to give useful feedback.`,
     worksheet: `WORKSHEET: ${focus}\n1. What are the current conditions and constraints?\n2. What result will show meaningful progress?\n3. Which resources, materials, or information are needed?\n4. What steps will you follow, in order?\n5. What did you observe while completing the work?\n6. What is the next decision or improvement?`,
+    example: `For example, a member of ${request.communityName} reviews the current conditions, available time, needed materials, and likely constraints. They choose a realistic result, follow the process, document what happens, and ask the community one focused question.`,
     keyPoints: [`Start ${focus.toLowerCase()} with an honest review of conditions, resources, experience, and constraints.`, `Define an observable result and follow a clear sequence instead of relying on vague intentions.`, `Use direct observation and focused community feedback to choose the next improvement.`],
   };
   const manuscript = [
@@ -82,7 +86,7 @@ export function buildFallbackLessonContent(request: LessonContentRequest): Lesso
     objective: `Complete ${focus.toLowerCase()} with a clear plan, observable result, and next step that moves ${audience} toward the member transformation.`,
     manuscript,
     keyPoints: lessonStage.keyPoints,
-    example: `A member from ${audience} begins ${focus.toLowerCase()} by reviewing their current conditions, available space, time, materials, and experience. They choose a realistic result, follow the steps, document what happens, and share one focused question instead of asking for general opinions.`,
+    example: lessonStage.example,
     exercise: lessonStage.exercise,
     worksheet: lessonStage.worksheet,
     quiz: [

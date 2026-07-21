@@ -72,6 +72,7 @@ describe("lesson production", () => {
 
     expect(`${welcome.manuscript} ${welcome.exercise} ${welcome.worksheet}`).toMatch(/introduction|community norms|support/i);
     expect(`${welcome.exercise} ${welcome.worksheet}`).not.toMatch(/conditions|resources|materials|space/i);
+    expect(`${welcome.manuscript} ${welcome.example}`).not.toMatch(/members begin|members members|first welcome to/i);
     expect(`${plan.manuscript} ${plan.exercise} ${plan.worksheet}`).toMatch(/sequence|timeline|checkpoint|step/i);
   });
 });
